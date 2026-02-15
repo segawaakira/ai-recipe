@@ -1,15 +1,15 @@
 import { NestFactory } from '@nestjs/core';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { AppModule } from './app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'fs';
 import * as path from 'path';
+import { AppModule } from './app.module';
 
 async function generateOpenApi() {
   const app = await NestFactory.create(AppModule, { logger: false });
 
   const config = new DocumentBuilder()
-    .setTitle('ThreeJS API')
-    .setDescription('ThreeJS API documentation')
+    .setTitle('Ai recipe API')
+    .setDescription('Ai recipe API documentation')
     .setVersion('1.0')
     .build();
 

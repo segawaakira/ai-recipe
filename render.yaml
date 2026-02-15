@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: threejs-api
+    name: ai-recipe-api
     env: node
     buildCommand: |
       cd apps/api

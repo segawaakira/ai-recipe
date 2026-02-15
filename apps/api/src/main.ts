@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import basicAuth from 'express-basic-auth';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as express from 'express';
+import basicAuth from 'express-basic-auth';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -22,8 +22,8 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('ThreeJS API')
-    .setDescription('ThreeJS API documentation')
+    .setTitle('Ai recipe API')
+    .setDescription('Ai recipe API documentation')
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
