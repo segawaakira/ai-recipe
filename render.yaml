@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: threejs-api
+    env: node
+    buildCommand: |
+      cd apps/api
+      pnpm install
+      pnpm prisma generate
+      pnpm run test
+      pnpm run build
+    startCommand: |
+      cd apps/api
+      pnpm prisma db push
+      pnpm start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
