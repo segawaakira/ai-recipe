@@ -1,24 +1,14 @@
 "use client";
 
 import { Button } from "@repo/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@repo/ui/components/card";
-import { Separator } from "@repo/ui/components/separator";
-import { ChefHat, User } from "lucide-react";
+import { Card, CardContent } from "@repo/ui/components/card";
+import { User } from "lucide-react";
 import { useState } from "react";
-import ReactMarkdown from "react-markdown";
 
 import { apiClient } from "@/lib/api-client";
 import { useToast } from "@repo/ui/hooks/use-toast";
 import { IngredientSection } from "components/ingredient-section";
-import { RecipeMeta } from "components/recipe-meta";
-import { StarRating } from "components/star-rating";
-import { YouTubeVideos } from "components/youtube-videos";
+import { RecipeDisplaySection } from "components/recipe-display-section";
 import { useSession } from "next-auth/react";
 
 interface YouTubeVideo {
@@ -41,6 +31,7 @@ export default function RecipeApp() {
   const [recipeServings, setRecipeServings] = useState(2);
   const [recipeGenre, setRecipeGenre] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [hasIngredients, setHasIngredients] = useState(false);
 
   const generateRecipe = async (params: {
     selectedIngredients: string[];
@@ -167,82 +158,40 @@ export default function RecipeApp() {
             session={session}
             onGenerateRecipe={generateRecipe}
             isGenerating={isGenerating}
+            onHasIngredientsChange={setHasIngredients}
           />
 
           {/* レシピ表示セクション */}
-          <Card className="w-full">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ChefHat className="h-5 w-5" />
-                おすすめレシピ
-              </CardTitle>
-              <CardDescription>
-                AIが提案するレシピが表示されます
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {recipe ? (
-                <div className="space-y-4">
-                  <RecipeMeta
-                    ingredients={recipeIngredients}
-                    servings={recipeServings}
-                    genre={recipeGenre}
-                  />
-                  <div className="prose prose-sm max-w-none">
-                    <ReactMarkdown>{recipe}</ReactMarkdown>
-                  </div>
-                  {recipeName && (
-                    <YouTubeVideos
-                      videos={youtubeVideos}
-                      recipeName={recipeName}
-                    />
-                  )}
-                  {savedRecipeId && (
-                    <>
-                      <Separator />
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">
-                          このレシピはいかがですか？
-                        </span>
-                        <StarRating
-                          rating={recipeRating}
-                          onRate={async (rating) => {
-                            setRecipeRating(rating);
-                            try {
-                              await fetch(
-                                `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/recipes/${savedRecipeId}/rating`,
-                                {
-                                  method: "PATCH",
-                                  headers: {
-                                    "Content-Type": "application/json",
-                                  },
-                                  body: JSON.stringify({ rating }),
-                                }
-                              );
-                              toast.success("評価を記録しました");
-                            } catch {
-                              console.error("Failed to save rating");
-                            }
-                          }}
-                        />
-                      </div>
-                      {recipeRating && (
-                        <p className="text-xs text-gray-400 text-right">
-                          次回のレシピ提案に反映されます
-                        </p>
-                      )}
-                    </>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center py-12 text-gray-500">
-                  <ChefHat className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p>「AIレシピを作成」ボタンを押して</p>
-                  <p>おすすめレシピを生成してください</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          {hasIngredients && (
+            <RecipeDisplaySection
+              recipe={recipe}
+              recipeName={recipeName}
+              youtubeVideos={youtubeVideos}
+              savedRecipeId={savedRecipeId}
+              recipeRating={recipeRating}
+              recipeIngredients={recipeIngredients}
+              recipeServings={recipeServings}
+              recipeGenre={recipeGenre}
+              onRate={async (rating) => {
+                setRecipeRating(rating);
+                try {
+                  await fetch(
+                    `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/recipes/${savedRecipeId}/rating`,
+                    {
+                      method: "PATCH",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({ rating }),
+                    }
+                  );
+                  toast.success("評価を記録しました");
+                } catch {
+                  console.error("Failed to save rating");
+                }
+              }}
+            />
+          )}
         </div>
       </div>
     </>

@@ -51,6 +51,7 @@ interface IngredientSectionProps {
     genre: string;
   }) => void;
   isGenerating: boolean;
+  onHasIngredientsChange?: (hasIngredients: boolean) => void;
 }
 
 function IngredientsSkeleton() {
@@ -71,6 +72,7 @@ export function IngredientSection({
   session,
   onGenerateRecipe,
   isGenerating,
+  onHasIngredientsChange,
 }: IngredientSectionProps) {
   const { toast } = useToast();
   const [ingredients, setIngredients] = useState<string[]>([]);
@@ -115,6 +117,10 @@ export function IngredientSection({
 
     fetchIngredients();
   }, [session?.user?.id]);
+
+  useEffect(() => {
+    onHasIngredientsChange?.(ingredients.length > 0);
+  }, [ingredients.length, onHasIngredientsChange]);
 
   useEffect(() => {
     if (!session?.user?.id || !isFetchedIngredients) return;
@@ -310,7 +316,7 @@ export function IngredientSection({
             {!isFetchedIngredients && session?.user?.id ? (
               <IngredientsSkeleton />
             ) : ingredients.length === 0 ? (
-              <p className="text-gray-500 text-sm py-4 text-center">
+              <p className="text-xs text-gray-400 text-center">
                 食材を追加してください
               </p>
             ) : (
@@ -364,7 +370,7 @@ export function IngredientSection({
               </div>
               <div className="space-y-2">
                 <h3 className="font-medium text-sm text-orange-700">
-                  特に使いたい食材 ({selectedIngredients.length}個)
+                  使いたい食材 ({selectedIngredients.length}個)
                 </h3>
                 <div
                   className={`min-h-[48px] rounded-lg border-2 border-dashed p-3 transition-colors ${
@@ -397,65 +403,74 @@ export function IngredientSection({
             </>
           )}
 
-          <Separator />
+          {ingredients.length > 0 && (
+            <>
+              <Separator />
 
-          {/* 人数・ジャンル選択 */}
-          <div className="flex items-center gap-2 justify-end flex-wrap">
-            <h3 className="font-medium text-sm text-gray-700">ジャンル</h3>
-            <select
-              value={genre}
-              onChange={(e) => setCuisine(e.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm"
-            >
-              <option value="">おまかせ</option>
-              <option value="和食">和食</option>
-              <option value="中華">中華</option>
-              <option value="イタリアン">イタリアン</option>
-              <option value="フレンチ">フレンチ</option>
-              <option value="韓国料理">韓国料理</option>
-              <option value="エスニック">エスニック</option>
-            </select>
-            <h3 className="font-medium text-sm text-gray-700">分量</h3>
-            <select
-              value={servings}
-              onChange={(e) => setServings(Number(e.target.value))}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm"
-            >
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                <option key={n} value={n}>
-                  {n}人分
-                </option>
-              ))}
-            </select>
-          </div>
+              {/* 人数・ジャンル選択 */}
+              <div className="flex items-center gap-2 justify-end flex-wrap">
+                <h3 className="font-medium text-sm text-gray-700">ジャンル</h3>
+                <select
+                  value={genre}
+                  onChange={(e) => setCuisine(e.target.value)}
+                  className="rounded-md border border-gray-300 px-3 py-1.5 text-sm"
+                >
+                  <option value="">おまかせ</option>
+                  <option value="和食">和食</option>
+                  <option value="中華">中華</option>
+                  <option value="イタリアン">イタリアン</option>
+                  <option value="フレンチ">フレンチ</option>
+                  <option value="韓国料理">韓国料理</option>
+                  <option value="エスニック">エスニック</option>
+                </select>
+                <h3 className="font-medium text-sm text-gray-700">分量</h3>
+                <select
+                  value={servings}
+                  onChange={(e) => setServings(Number(e.target.value))}
+                  className="rounded-md border border-gray-300 px-3 py-1.5 text-sm"
+                >
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                    <option key={n} value={n}>
+                      {n}人分
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-          <Button
-            onClick={() =>
-              onGenerateRecipe({
-                selectedIngredients,
-                allIngredients: ingredients,
-                servings,
-                genre,
-              })
-            }
-            disabled={selectedIngredients.length === 0 || isGenerating}
-            className="w-full bg-orange-600 hover:bg-orange-700"
-            size="lg"
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                レシピを生成中...
-              </>
-            ) : (
-              <>
-                <ChefHat className="h-4 w-4 mr-2" />
-                AIレシピを作成
-                {selectedIngredients.length > 0 &&
-                  ` (${selectedIngredients.length}食材)`}
-              </>
-            )}
-          </Button>
+              <Button
+                onClick={() =>
+                  onGenerateRecipe({
+                    selectedIngredients,
+                    allIngredients: ingredients,
+                    servings,
+                    genre,
+                  })
+                }
+                disabled={selectedIngredients.length === 0 || isGenerating}
+                className="w-full bg-orange-600 hover:bg-orange-700"
+                size="lg"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    レシピを生成中...
+                  </>
+                ) : (
+                  <>
+                    <ChefHat className="h-4 w-4 mr-2" />
+                    AIレシピを作成
+                    {selectedIngredients.length > 0 &&
+                      ` (${selectedIngredients.length}食材)`}
+                  </>
+                )}
+              </Button>
+              {selectedIngredients.length === 0 && (
+                <p className="text-xs text-gray-400 text-center">
+                  使いたい食材を1つ以上選んでください
+                </p>
+              )}
+            </>
+          )}
         </CardContent>
       </Card>
 
