@@ -70,8 +70,9 @@ ${ratedRecipes && ratedRecipes.length > 0 ? '- ユーザーの好みを考慮し
 
     const titleMatch = result.match(/^#\s+(.+)$/m);
     const recipeName = titleMatch ? titleMatch[1].trim() : '';
+    const recipeContent = result.replace(/^#\s+.+\n+/, '');
 
-    return { recipe: result, recipeName };
+    return { recipe: recipeContent, recipeName };
   }
 
   async recognizeIngredients(

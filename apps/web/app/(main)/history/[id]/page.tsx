@@ -121,7 +121,7 @@ export default function RecipeDetailPage() {
                   genre={recipe.genre}
                 />
 
-                <div className="prose prose-sm max-w-none">
+                <div className="markdown-content">
                   <ReactMarkdown>{recipe.content}</ReactMarkdown>
                 </div>
 

@@ -55,6 +55,9 @@ export function RecipeDisplaySection({
         <CardDescription>
           AIが提案するレシピが表示されます
         </CardDescription>
+        {recipeName && (
+          <p className="text-lg font-semibold mt-1">{recipeName}</p>
+        )}
       </CardHeader>
       <CardContent>
         {recipe ? (
@@ -64,7 +67,7 @@ export function RecipeDisplaySection({
               servings={recipeServings}
               genre={recipeGenre}
             />
-            <div className="prose prose-sm max-w-none">
+            <div className="markdown-content">
               <ReactMarkdown>{recipe}</ReactMarkdown>
             </div>
             {recipeName && (
