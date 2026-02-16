@@ -137,25 +137,20 @@ export function IngredientSection({
   }, [ingredients, session?.user?.id, isFetchedIngredients]);
 
   const validateAndAddIngredients = async (newItems: string[]) => {
-    const exactDuplicates = newItems.filter((i) => ingredients.includes(i));
+    if (newItems.length === 0) return;
+
+    const duplicates = newItems.filter((i) => ingredients.includes(i));
     const unique = newItems.filter((i) => !ingredients.includes(i));
 
-    if (unique.length === 0 && exactDuplicates.length === 0) return;
-
-    const duplicateResults: ValidationResult[] = exactDuplicates.map(
-      (name) => ({
-        name,
-        isFood: true,
-        similarTo: null,
-        isDuplicate: true,
-      })
-    );
-
-    if (unique.length === 0) {
-      setValidationResults(duplicateResults);
-      setShowValidationDialog(true);
-      return;
+    if (duplicates.length > 0) {
+      toast.error(
+        duplicates.length === 1
+          ? `「${duplicates[0]}」はすでに追加されています`
+          : `${duplicates.map((d) => `「${d}」`).join("、")}はすでに追加されています`
+      );
     }
+
+    if (unique.length === 0) return;
 
     setIsValidating(true);
     try {
@@ -171,15 +166,14 @@ export function IngredientSection({
         }
       );
       const data = await res.json();
-      const apiResults: ValidationResult[] = data.results || [];
+      const results: ValidationResult[] = data.results || [];
 
-      const allResults = [...duplicateResults, ...apiResults];
-      const hasProblems = allResults.some(
+      const hasProblems = results.some(
         (r) => !r.isFood || r.similarTo || r.isDuplicate
       );
 
       if (hasProblems) {
-        setValidationResults(allResults);
+        setValidationResults(results);
         setShowValidationDialog(true);
       } else {
         setIngredients((prev) => [...prev, ...unique]);
@@ -195,7 +189,7 @@ export function IngredientSection({
 
   const addIngredient = () => {
     const trimmed = newIngredient.trim();
-    if (trimmed && !ingredients.includes(trimmed)) {
+    if (trimmed) {
       setNewIngredient("");
       validateAndAddIngredients([trimmed]);
     }

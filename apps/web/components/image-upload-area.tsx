@@ -2,13 +2,13 @@
 
 import type React from "react";
 
-import { useState, useRef } from "react";
-import { Button } from "@repo/ui/components/button";
-import { Card, CardContent } from "@repo/ui/components/card";
-import { Badge } from "@repo/ui/components/badge";
 import { Alert, AlertDescription } from "@repo/ui/components/alert";
-import { Upload, Camera, X, Check, Loader2, AlertCircle } from "lucide-react";
+import { Badge } from "@repo/ui/components/badge";
+import { Button } from "@repo/ui/components/button";
+import { AlertCircle, Camera, Check, Loader2, Upload, X } from "lucide-react";
+import { useRef, useState } from "react";
 
+import { Separator } from "@repo/ui/components/separator";
 interface ImageUploadAreaProps {
   onIngredientsRecognized: (ingredients: string[]) => void;
 }
@@ -233,8 +233,7 @@ export function ImageUploadArea({
       ) : (
         <div className="space-y-4">
           {/* アップロードした画像のプレビュー */}
-          <Card>
-            <CardContent className="p-4">
+          <div className="border-2 border-dashed rounded-lg p-6 border-gray-400">
               <div className="flex items-start gap-4">
                 <div className="relative">
                   <img
@@ -283,20 +282,18 @@ export function ImageUploadArea({
                     </div>
                   ) : null}
                 </div>
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* 認識された食材の選択 */}
+              </div>
           {recognizedIngredients.length > 0 && (
-            <Card>
-              <CardContent className="p-4">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-medium flex items-center gap-2">
+            <>
+            
+            <Separator className="mt-4" />
+                <div className="mt-4">
+                    <h4 className="text-sm flex items-center gap-2">
                       <Camera className="h-4 w-4" />
                       認識された食材を選択してください
                     </h4>
+                  <div className="flex items-center justify-end my-2">
                     <div className="flex gap-1">
                       <Button
                         variant="ghost"
@@ -316,18 +313,14 @@ export function ImageUploadArea({
                       </Button>
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 my-4">
                     {recognizedIngredients.map((ingredient, index) => (
                       <Badge
                         key={index}
-                        variant={
+                        variant="outline"
+                        className={`cursor-pointer transition-colors px-3 py-1 ${
                           selectedIngredients.includes(ingredient)
-                            ? "default"
-                            : "outline"
-                        }
-                        className={`cursor-pointer transition-colors py-1.5 px-3 text-sm ${
-                          selectedIngredients.includes(ingredient)
-                            ? "bg-orange-600 hover:bg-orange-700"
+                            ? "border-orange-600 text-orange-600 hover:bg-orange-50"
                             : "hover:bg-gray-100"
                         }`}
                         onClick={() => toggleIngredientSelection(ingredient)}
@@ -340,16 +333,10 @@ export function ImageUploadArea({
                     ))}
                   </div>
 
-                  {selectedIngredients.length > 0 && (
-                    <Alert>
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>
-                        {selectedIngredients.length}個の食材が選択されています
-                      </AlertDescription>
-                    </Alert>
-                  )}
-
-                  <div className="flex gap-2 pt-2">
+                  <div className="flex gap-2 pt-2 justify-end">
+                    <Button variant="outline" onClick={resetUpload}>
+                      キャンセル
+                    </Button>
                     <Button
                       onClick={addSelectedIngredients}
                       disabled={selectedIngredients.length === 0}
@@ -357,14 +344,11 @@ export function ImageUploadArea({
                     >
                       選択した食材を追加 ({selectedIngredients.length})
                     </Button>
-                    <Button variant="outline" onClick={resetUpload}>
-                      キャンセル
-                    </Button>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+                </>
           )}
+            </div>
         </div>
       )}
 

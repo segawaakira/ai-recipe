@@ -115,6 +115,15 @@ export default function HistoryPage() {
     updateQuery({ search: searchQuery, page: 1 });
   };
 
+  const renderNoResults = (text: string) => {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        <Search className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+        <p className="text-sm">{text}</p>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
             <Card>
@@ -157,11 +166,10 @@ export default function HistoryPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                {!isLoading && sessionStatus !== "loading" && recipeHistory.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <Search className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-                    <p className="text-sm">該当するレシピが見つかりません</p>
-                  </div>
+                {!isLoading && recipeHistory.length === 0 && (searchQuery || ratingFilter) ? (
+                  renderNoResults("該当するレシピが見つかりません")
+                ) : !isLoading && recipeHistory.length === 0 ? (
+                  renderNoResults("まだレシピ履歴がありません")
                 ) : (
                   <Table>
                     <TableHeader>
