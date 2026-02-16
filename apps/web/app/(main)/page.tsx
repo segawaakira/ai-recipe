@@ -16,6 +16,7 @@ import ReactMarkdown from "react-markdown";
 import { apiClient } from "@/lib/api-client";
 import { useToast } from "@repo/ui/hooks/use-toast";
 import { IngredientSection } from "components/ingredient-section";
+import { RecipeMeta } from "components/recipe-meta";
 import { StarRating } from "components/star-rating";
 import { YouTubeVideos } from "components/youtube-videos";
 import { useSession } from "next-auth/react";
@@ -36,12 +37,16 @@ export default function RecipeApp() {
   const [youtubeVideos, setYoutubeVideos] = useState<YouTubeVideo[]>([]);
   const [savedRecipeId, setSavedRecipeId] = useState<number | null>(null);
   const [recipeRating, setRecipeRating] = useState<number | null>(null);
+  const [recipeIngredients, setRecipeIngredients] = useState<string[]>([]);
+  const [recipeServings, setRecipeServings] = useState(2);
+  const [recipeGenre, setRecipeGenre] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
 
   const generateRecipe = async (params: {
     selectedIngredients: string[];
     allIngredients: string[];
     servings: number;
+    genre: string;
   }) => {
     if (params.selectedIngredients.length === 0) return;
 
@@ -51,6 +56,9 @@ export default function RecipeApp() {
     setYoutubeVideos([]);
     setSavedRecipeId(null);
     setRecipeRating(null);
+    setRecipeIngredients(params.selectedIngredients);
+    setRecipeServings(params.servings);
+    setRecipeGenre(params.genre);
     try {
       let ratedRecipes: { name: string; rating: number }[] = [];
       if (session?.user?.id) {
@@ -71,6 +79,7 @@ export default function RecipeApp() {
             preferredIngredients: params.selectedIngredients,
             allIngredients: params.allIngredients,
             servings: params.servings,
+            genre: params.genre || undefined,
             ratedRecipes:
               ratedRecipes.length > 0 ? ratedRecipes : undefined,
           }),
@@ -102,6 +111,7 @@ export default function RecipeApp() {
                 content: data.recipe,
                 ingredients: params.selectedIngredients,
                 servings: params.servings,
+                genre: params.genre || undefined,
                 youtubeVideos:
                   savedVideos.length > 0
                     ? (savedVideos as unknown as Record<string, never>)
@@ -173,6 +183,11 @@ export default function RecipeApp() {
             <CardContent>
               {recipe ? (
                 <div className="space-y-4">
+                  <RecipeMeta
+                    ingredients={recipeIngredients}
+                    servings={recipeServings}
+                    genre={recipeGenre}
+                  />
                   <div className="prose prose-sm max-w-none">
                     <ReactMarkdown>{recipe}</ReactMarkdown>
                   </div>

@@ -48,6 +48,7 @@ interface IngredientSectionProps {
     selectedIngredients: string[];
     allIngredients: string[];
     servings: number;
+    genre: string;
   }) => void;
   isGenerating: boolean;
 }
@@ -78,6 +79,7 @@ export function IngredientSection({
 
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
   const [servings, setServings] = useState(2);
+  const [genre, setCuisine] = useState("");
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [showIngredientDeleteConfirm, setShowIngredientDeleteConfirm] =
@@ -397,8 +399,22 @@ export function IngredientSection({
 
           <Separator />
 
-          {/* 人数選択 */}
-          <div className="flex items-center gap-2 justify-end">
+          {/* 人数・ジャンル選択 */}
+          <div className="flex items-center gap-2 justify-end flex-wrap">
+            <h3 className="font-medium text-sm text-gray-700">ジャンル</h3>
+            <select
+              value={genre}
+              onChange={(e) => setCuisine(e.target.value)}
+              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm"
+            >
+              <option value="">おまかせ</option>
+              <option value="和食">和食</option>
+              <option value="中華">中華</option>
+              <option value="イタリアン">イタリアン</option>
+              <option value="フレンチ">フレンチ</option>
+              <option value="韓国料理">韓国料理</option>
+              <option value="エスニック">エスニック</option>
+            </select>
             <h3 className="font-medium text-sm text-gray-700">分量</h3>
             <select
               value={servings}
@@ -419,6 +435,7 @@ export function IngredientSection({
                 selectedIngredients,
                 allIngredients: ingredients,
                 servings,
+                genre,
               })
             }
             disabled={selectedIngredients.length === 0 || isGenerating}

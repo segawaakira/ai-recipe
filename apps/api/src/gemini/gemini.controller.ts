@@ -17,6 +17,7 @@ export class GeminiController {
       allIngredients?: string[];
       ingredients?: string[];
       servings?: number;
+      genre?: string;
       ratedRecipes?: { name: string; rating: number }[];
     },
   ) {
@@ -28,6 +29,7 @@ export class GeminiController {
       all,
       servings,
       body.ratedRecipes,
+      body.genre,
     );
   }
 

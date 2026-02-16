@@ -17,6 +17,7 @@ export class RecipeService {
         content: dto.content,
         ingredients: dto.ingredients,
         servings: dto.servings,
+        genre: dto.genre ?? undefined,
         youtubeVideos: dto.youtubeVideos ?? undefined,
         user: {
           connect: { id: dto.userId },
