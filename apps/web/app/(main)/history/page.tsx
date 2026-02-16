@@ -17,13 +17,12 @@ import {
   TableHeader,
   TableRow,
 } from "@repo/ui/components/table";
-import { ChefHat, ChevronLeft, ChevronRight, Clock, Search, Star, Trash2 } from "lucide-react";
+import { Clock, Search, Star } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 import { apiClient } from "@/lib/api-client";
-import { ConfirmDialog } from "components/confirm-dialog";
+import { Pagination } from "components/pagination";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
 interface RecipeHistoryItem {
@@ -38,7 +37,7 @@ interface RecipeHistoryItem {
 }
 
 export default function HistoryPage() {
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -50,9 +49,7 @@ export default function HistoryPage() {
   const [recipeHistory, setRecipeHistory] = useState<RecipeHistoryItem[]>([]);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [recipeToDelete, setRecipeToDelete] = useState<RecipeHistoryItem | null>(null);
   const [searchQuery, setSearchQuery] = useState(appliedSearch);
-  const [isNarrow, setIsNarrow] = useState(false);
 
   const updateQuery = useCallback((updates: { page?: number; search?: string; rating?: number | null; perPage?: number }) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -80,14 +77,6 @@ export default function HistoryPage() {
     router.push(qs ? `/history?${qs}` : "/history");
   }, [searchParams, router]);
 
-  useEffect(() => {
-    const mql = window.matchMedia("(max-width: 400px)");
-    setIsNarrow(mql.matches);
-    const handler = (e: MediaQueryListEvent) => setIsNarrow(e.matches);
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
-  }, []);
-
   const totalPages = Math.max(1, Math.ceil(total / perPage));
 
   const fetchRecipes = useCallback(async (page: number, search: string, rating: number | null) => {
@@ -112,7 +101,9 @@ export default function HistoryPage() {
     } catch (error) {
       console.error("Failed to fetch recipe history:", error);
     } finally {
-      setIsLoading(false);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
     }
   }, [session?.user?.id, perPage]);
 
@@ -124,58 +115,8 @@ export default function HistoryPage() {
     updateQuery({ search: searchQuery, page: 1 });
   };
 
-  const deleteRecipeHistory = async (id: number) => {
-    try {
-      await apiClient.DELETE("/recipes/{id}", {
-        params: { path: { id: String(id) } },
-      });
-      const newTotal = total - 1;
-      const newTotalPages = Math.max(1, Math.ceil(newTotal / perPage));
-      const nextPage = currentPage > newTotalPages ? newTotalPages : currentPage;
-      updateQuery({ page: nextPage });
-      await fetchRecipes(nextPage, appliedSearch, ratingFilter);
-    } catch (error) {
-      console.error("Failed to delete recipe:", error);
-    }
-  };
-
   return (
     <div className="space-y-6">
-          {!session?.user?.id ? (
-            <Card className="bg-blue-50 border-blue-200">
-              <CardContent className="pt-6">
-                <div className="text-center space-y-2">
-                  <p className="text-blue-700 text-sm">
-                    履歴を閲覧するにはログインしてください
-                  </p>
-                  <div className="flex gap-2 justify-center">
-                    <Button variant="outline" asChild>
-                      <a href="/auth/signin">ログイン</a>
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ) : isLoading ? (
-            <div className="text-center py-12 text-gray-500">
-              <p>読み込み中...</p>
-            </div>
-          ) : total === 0 && !appliedSearch && ratingFilter === null ? (
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center py-12 text-gray-500">
-                  <ChefHat className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p>まだレシピ履歴がありません</p>
-                  <p className="text-sm mt-1">レシピを生成すると自動的に保存されます</p>
-                  <Link href="/" className="mt-4 inline-block">
-                    <Button variant="outline" className="mt-4">
-                      レシピを作成する
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -216,7 +157,7 @@ export default function HistoryPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                {recipeHistory.length === 0 ? (
+                {!isLoading && sessionStatus !== "loading" && recipeHistory.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
                     <Search className="h-8 w-8 mx-auto mb-2 text-gray-300" />
                     <p className="text-sm">該当するレシピが見つかりません</p>
@@ -228,134 +169,61 @@ export default function HistoryPage() {
                         <TableHead>レシピ名</TableHead>
                         <TableHead className="w-[70px] text-center">評価</TableHead>
                         <TableHead className="w-[100px]">作成日</TableHead>
-                        <TableHead className="w-[44px]" />
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {recipeHistory.map((item) => (
-                        <TableRow key={item.id} className="group">
-                          <TableCell>
-                            <Link
-                              href={`/history/${item.id}`}
-                              className="flex items-center gap-1 font-medium text-sm hover:text-orange-600 transition-colors"
-                            >
+                      {isLoading ? (
+                        Array.from({ length: perPage }).map((_, i) => (
+                          <TableRow key={i}>
+                            <TableCell>
+                              <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse" />
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <div className="h-4 w-8 bg-gray-200 rounded animate-pulse mx-auto" />
+                            </TableCell>
+                            <TableCell>
+                              <div className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        recipeHistory.map((item) => (
+                          <TableRow
+                            key={item.id}
+                            className="cursor-pointer hover:bg-gray-50 transition-colors"
+                            onClick={() => router.push(`/history/${item.id}`)}
+                          >
+                            <TableCell className="font-medium text-sm">
                               {item.name}
-                              <ChevronRight className="h-3.5 w-3.5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-                            </Link>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            {item.rating ? (
-                              <span className="inline-flex items-center gap-0.5 text-xs text-yellow-600">
-                                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                                {item.rating}
-                              </span>
-                            ) : (
-                              <span className="text-xs text-gray-300">-</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-xs text-gray-500 whitespace-nowrap">
-                            {new Date(item.createdAt).toLocaleDateString("ja-JP")}
-                          </TableCell>
-                          <TableCell className="p-0">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0 hover:bg-red-100"
-                              onClick={() => setRecipeToDelete(item)}
-                            >
-                              <Trash2 className="h-4 w-4 text-red-500" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {item.rating ? (
+                                <span className="inline-flex items-center gap-0.5 text-xs text-yellow-600">
+                                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                                  {item.rating}
+                                </span>
+                              ) : (
+                                <span className="text-xs text-gray-300">-</span>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-xs text-gray-500 whitespace-nowrap">
+                              {new Date(item.createdAt).toLocaleDateString("ja-JP")}
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
                     </TableBody>
                   </Table>
                 )}
-                <div className="flex items-center justify-between pt-4">
-                  <div className="flex items-center gap-2">
-                    {totalPages > 1 && (
-                      <>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          disabled={currentPage === 1}
-                          onClick={() => updateQuery({ page: currentPage - 1 })}
-                        >
-                          <ChevronLeft className="h-4 w-4" />
-                        </Button>
-                        {(() => {
-                          const pages: (number | "ellipsis-start" | "ellipsis-end")[] = [];
-                          const sibling = isNarrow ? 0 : 1;
-                          const threshold = 3 + sibling * 2;
-                          if (totalPages <= threshold) {
-                            for (let i = 1; i <= totalPages; i++) pages.push(i);
-                          } else {
-                            pages.push(1);
-                            if (currentPage > 2 + sibling) pages.push("ellipsis-start");
-                            const start = Math.max(2, currentPage - sibling);
-                            const end = Math.min(totalPages - 1, currentPage + sibling);
-                            for (let i = start; i <= end; i++) pages.push(i);
-                            if (currentPage < totalPages - 1 - sibling) pages.push("ellipsis-end");
-                            pages.push(totalPages);
-                          }
-                          return pages.map((page) =>
-                            typeof page === "string" ? (
-                              <span key={page} className="px-1 text-gray-400">...</span>
-                            ) : (
-                              <Button
-                                key={page}
-                                variant={page === currentPage ? "default" : "outline"}
-                                size="icon"
-                                className="h-8 w-8"
-                                onClick={() => updateQuery({ page })}
-                              >
-                                {page}
-                              </Button>
-                            )
-                          );
-                        })()}
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          disabled={currentPage === totalPages}
-                          onClick={() => updateQuery({ page: currentPage + 1 })}
-                        >
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <select
-                      value={perPage}
-                      onChange={(e) => updateQuery({ perPage: Number(e.target.value), page: 1 })}
-                      className="rounded-md border border-gray-300 px-2 py-1.5 text-sm"
-                    >
-                      {[2, 10, 50, 100].map((n) => (
-                        <option key={n} value={n}>{n}件</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  perPage={perPage}
+                  onPageChange={(page) => updateQuery({ page })}
+                  onPerPageChange={(pp) => updateQuery({ perPage: pp, page: 1 })}
+                />
               </CardContent>
             </Card>
-          )}
-      <ConfirmDialog
-        open={recipeToDelete !== null}
-        onOpenChange={(open) => {
-          if (!open) setRecipeToDelete(null);
-        }}
-        title="履歴削除の確認"
-        description={`本当に「${recipeToDelete?.name ?? ""}」を削除しますか？`}
-        onConfirm={() => {
-          if (recipeToDelete) {
-            deleteRecipeHistory(recipeToDelete.id);
-            setRecipeToDelete(null);
-          }
-        }}
-      />
     </div>
   );
 }

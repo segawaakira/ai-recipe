@@ -1,8 +1,7 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { redirect } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { redirect, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
@@ -21,23 +20,24 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   }
 
   // デバッグ情報をコンソールに出力
-  console.log("AuthGuard Debug:", {
-    pathname,
-    session: !!session,
-    status,
-    isClient,
-  });
+  // console.log("AuthGuard Debug:", {
+  //   pathname,
+  //   session: !!session,
+  //   status,
+  //   isClient,
+  // });
 
   // ローディング中は何もしない
   if (status === "loading") {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    return null;
+    // return (
+    //   <div className="flex min-h-screen items-center justify-center">
+    //     <div className="text-center">
+    //       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto mb-4"></div>
+    //       <p className="text-gray-600">Loading...</p>
+    //     </div>
+    //   </div>
+    // );
   }
 
   // 認証されていない場合、authページ以外はリダイレクト

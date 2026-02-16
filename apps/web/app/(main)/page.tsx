@@ -1,8 +1,5 @@
 "use client";
 
-import type React from "react";
-
-import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import {
   Card,
@@ -11,24 +8,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
-import { Input } from "@repo/ui/components/input";
 import { Separator } from "@repo/ui/components/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/components/tabs";
-import { ArrowDown, Carrot, Check, ChefHat, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ChefHat, User } from "lucide-react";
+import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 import { apiClient } from "@/lib/api-client";
 import { useToast } from "@repo/ui/hooks/use-toast";
-import { ConfirmDialog } from "components/confirm-dialog";
-import { ImageUploadArea } from "components/image-upload-area";
-import {
-  IngredientValidationDialog,
-  type ValidationResult,
-} from "components/ingredient-validation-dialog";
+import { IngredientSection } from "components/ingredient-section";
 import { StarRating } from "components/star-rating";
 import { YouTubeVideos } from "components/youtube-videos";
-import { Camera, Type, User } from "lucide-react";
 import { useSession } from "next-auth/react";
 
 interface YouTubeVideo {
@@ -41,143 +30,20 @@ interface YouTubeVideo {
 export default function RecipeApp() {
   const { data: session } = useSession();
   const { toast } = useToast();
-  const [ingredients, setIngredients] = useState<string[]>([]);
-  const [newIngredient, setNewIngredient] = useState("");
-  const [isFetchedIngredients, setIsFetchedIngredients] = useState(false);
 
-  const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
-  const [servings, setServings] = useState(2);
   const [recipe, setRecipe] = useState("");
   const [recipeName, setRecipeName] = useState("");
   const [youtubeVideos, setYoutubeVideos] = useState<YouTubeVideo[]>([]);
   const [savedRecipeId, setSavedRecipeId] = useState<number | null>(null);
   const [recipeRating, setRecipeRating] = useState<number | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [showIngredientDeleteConfirm, setShowIngredientDeleteConfirm] =
-    useState(false);
-  const [ingredientToDelete, setIngredientToDelete] = useState<string>("");
-  const [showValidationDialog, setShowValidationDialog] = useState(false);
-  const [validationResults, setValidationResults] = useState<ValidationResult[]>([]);
-  const [isValidating, setIsValidating] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
 
-  useEffect(() => {
-    if (!session?.user?.id) return;
-    const fetchIngredients = async () => {
-      try {
-        const { data } = await apiClient.GET("/ingredient-sets", {
-          params: { query: { userId: Number(session?.user?.id) } },
-        });
-        if (data && data.length > 0 && data[0]) {
-          setIngredients(data[0].ingredients);
-        }
-      } catch (error) {
-        console.error("Failed to fetch ingredients:", error);
-      } finally {
-        setIsFetchedIngredients(true);
-      }
-    };
-
-    fetchIngredients();
-  }, [session?.user?.id]);
-
-  useEffect(() => {
-    if (!session?.user?.id || !isFetchedIngredients) return;
-    const updateIngredients = async () => {
-      try {
-        await apiClient.PATCH("/ingredient-sets/{id}", {
-          params: { path: { id: String(session?.user?.id) } },
-          body: {
-            ingredients: ingredients,
-          },
-        });
-      } catch (error) {
-        console.error("Failed to fetch ingredients:", error);
-      }
-    };
-
-    updateIngredients();
-  }, [ingredients, session?.user?.id, isFetchedIngredients]);
-
-  const validateAndAddIngredients = async (newItems: string[]) => {
-    const exactDuplicates = newItems.filter((i) => ingredients.includes(i));
-    const unique = newItems.filter((i) => !ingredients.includes(i));
-
-    if (unique.length === 0 && exactDuplicates.length === 0) return;
-
-    const duplicateResults: ValidationResult[] = exactDuplicates.map((name) => ({
-      name,
-      isFood: true,
-      similarTo: null,
-      isDuplicate: true,
-    }));
-
-    if (unique.length === 0) {
-      setValidationResults(duplicateResults);
-      setShowValidationDialog(true);
-      return;
-    }
-
-    setIsValidating(true);
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/gemini/validate-ingredients`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            newIngredients: unique,
-            existingIngredients: ingredients,
-          }),
-        }
-      );
-      const data = await res.json();
-      const apiResults: ValidationResult[] = data.results || [];
-
-      const allResults = [...duplicateResults, ...apiResults];
-      const hasProblems = allResults.some(
-        (r) => !r.isFood || r.similarTo || r.isDuplicate
-      );
-
-      if (hasProblems) {
-        setValidationResults(allResults);
-        setShowValidationDialog(true);
-      } else {
-        setIngredients((prev) => [...prev, ...unique]);
-        toast.success(`${unique.length}個の食材を追加しました`);
-      }
-    } catch {
-      setIngredients((prev) => [...prev, ...unique]);
-      toast.success(`${unique.length}個の食材を追加しました`);
-    } finally {
-      setIsValidating(false);
-    }
-  };
-
-  const addIngredient = () => {
-    const trimmed = newIngredient.trim();
-    if (trimmed && !ingredients.includes(trimmed)) {
-      setNewIngredient("");
-      validateAndAddIngredients([trimmed]);
-    }
-  };
-
-  const removeIngredient = (ingredient: string) => {
-    setIngredients(ingredients.filter((i) => i !== ingredient));
-  };
-
-  const addToSelected = (ingredient: string) => {
-    if (!selectedIngredients.includes(ingredient)) {
-      setSelectedIngredients([...selectedIngredients, ingredient]);
-    }
-  };
-
-  const removeFromSelected = (ingredient: string) => {
-    setSelectedIngredients(selectedIngredients.filter((i) => i !== ingredient));
-  };
-
-  const generateRecipe = async () => {
-    if (selectedIngredients.length === 0) return;
+  const generateRecipe = async (params: {
+    selectedIngredients: string[];
+    allIngredients: string[];
+    servings: number;
+  }) => {
+    if (params.selectedIngredients.length === 0) return;
 
     setIsGenerating(true);
     setRecipe("");
@@ -186,7 +52,6 @@ export default function RecipeApp() {
     setSavedRecipeId(null);
     setRecipeRating(null);
     try {
-      // 評価済みレシピを取得してプロンプトに反映
       let ratedRecipes: { name: string; rating: number }[] = [];
       if (session?.user?.id) {
         try {
@@ -197,22 +62,25 @@ export default function RecipeApp() {
         } catch {}
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/gemini/generate-recipe`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          preferredIngredients: selectedIngredients,
-          allIngredients: ingredients,
-          servings,
-          ratedRecipes: ratedRecipes.length > 0 ? ratedRecipes : undefined,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/gemini/generate-recipe`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            preferredIngredients: params.selectedIngredients,
+            allIngredients: params.allIngredients,
+            servings: params.servings,
+            ratedRecipes:
+              ratedRecipes.length > 0 ? ratedRecipes : undefined,
+          }),
+        }
+      );
 
       const data = await response.json();
       setRecipe(data.recipe);
       if (data.recipeName) {
         setRecipeName(data.recipeName);
-        // YouTube動画を検索
         let savedVideos: YouTubeVideo[] = [];
         try {
           const ytRes = await fetch(
@@ -225,7 +93,6 @@ export default function RecipeApp() {
           }
         } catch {}
 
-        // DBに自動保存
         if (session?.user?.id) {
           try {
             const { data: savedRecipe } = await apiClient.POST("/recipes", {
@@ -233,9 +100,12 @@ export default function RecipeApp() {
                 userId: Number(session.user.id),
                 name: data.recipeName,
                 content: data.recipe,
-                ingredients: selectedIngredients,
-                servings,
-                youtubeVideos: savedVideos.length > 0 ? (savedVideos as unknown as Record<string, never>) : undefined,
+                ingredients: params.selectedIngredients,
+                servings: params.servings,
+                youtubeVideos:
+                  savedVideos.length > 0
+                    ? (savedVideos as unknown as Record<string, never>)
+                    : undefined,
               },
             });
             if (savedRecipe) {
@@ -252,12 +122,6 @@ export default function RecipeApp() {
       );
     } finally {
       setIsGenerating(false);
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      addIngredient();
     }
   };
 
@@ -289,323 +153,83 @@ export default function RecipeApp() {
         )}
 
         <div className="flex gap-4 flex-col w-full">
-              {/* 食材管理セクション */}
-              <Card className="w-full">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Carrot className="h-5 w-5" />
-                    食材管理
-                  </CardTitle>
-                  <CardDescription>
-                    テキスト入力または画像から食材を追加できます
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* 食材追加方法の切り替え */}
-                  <Tabs defaultValue="text">
-                    <TabsList className="w-full">
-                      <TabsTrigger value="text" className="flex items-center gap-1">
-                        <Type className="h-4 w-4" />
-                        テキスト入力
-                      </TabsTrigger>
-                      <TabsTrigger value="camera" className="flex items-center gap-1">
-                        <Camera className="h-4 w-4" />
-                        画像から追加
-                      </TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="text">
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="食材名を入力..."
-                          value={newIngredient}
-                          onChange={(e) => setNewIngredient(e.target.value)}
-                          onKeyPress={handleKeyPress}
-                          className="flex-1"
-                        />
-                        <Button
-                          onClick={addIngredient}
-                          disabled={!newIngredient.trim() || isValidating}
-                        >
-                          {isValidating ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            "追加"
-                          )}
-                        </Button>
-                      </div>
-                    </TabsContent>
-                    <TabsContent value="camera">
-                      <ImageUploadArea
-                        onIngredientsRecognized={(newIngredients) => {
-                          if (newIngredients.length > 0) {
-                            validateAndAddIngredients(newIngredients);
-                          }
-                        }}
-                      />
-                    </TabsContent>
-                  </Tabs>
+          <IngredientSection
+            session={session}
+            onGenerateRecipe={generateRecipe}
+            isGenerating={isGenerating}
+          />
 
-                  {/* 所有食材一覧 */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-sm text-gray-700">
-                        所有食材 ({ingredients.length}個)
-                      </h3>
-                      {ingredients.length > 0 && (
-                        <Button
-                          variant={isEditMode ? "default" : "ghost"}
-                          size="sm"
-                          className={`h-7 px-2 text-xs gap-1 ${
-                            isEditMode
-                              ? "bg-orange-600 hover:bg-orange-700 text-white"
-                              : "text-gray-500 hover:text-gray-700"
-                          }`}
-                          onClick={() => setIsEditMode(!isEditMode)}
-                        >
-                          {isEditMode ? (
-                            <>
-                              <Check className="h-3 w-3" />
-                              完了
-                            </>
-                          ) : (
-                            <>
-                              <Pencil className="h-3 w-3" />
-                              編集
-                            </>
-                          )}
-                        </Button>
-                      )}
-                    </div>
-                    {isEditMode && (
-                      <p className="text-xs text-red-500">
-                        削除する食材をタップしてください
-                      </p>
-                    )}
-                    {ingredients.length === 0 ? (
-                      <p className="text-gray-500 text-sm py-4 text-center">
-                        食材を追加してください
-                      </p>
-                    ) : (
-                      <div className="flex flex-wrap gap-2">
-                        {ingredients.map((ingredient, index) => (
-                          <Badge
-                            key={index}
-                            variant="secondary"
-                            className={`flex items-center gap-1 px-3 py-1 cursor-pointer select-none ${
-                              isEditMode
-                                ? "border border-red-200 hover:bg-red-100"
-                                : selectedIngredients.includes(ingredient)
-                                  ? "opacity-50 cursor-default"
-                                  : "hover:bg-orange-100"
-                            }`}
-                            onClick={() => {
-                              if (isEditMode) {
-                                setIngredientToDelete(ingredient);
-                                setShowIngredientDeleteConfirm(true);
-                              } else if (!selectedIngredients.includes(ingredient)) {
-                                addToSelected(ingredient);
-                              }
-                            }}
-                          >
-                            {isEditMode ? (
-                              <>
-                                <Trash2 className="h-3 w-3 text-red-500" />
-                                {ingredient}
-                              </>
-                            ) : (
-                              <>
-                                {!selectedIngredients.includes(ingredient) && (
-                                  <Plus className="h-3 w-3 text-orange-600" />
-                                )}
-                                {ingredient}
-                              </>
-                            )}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
+          {/* レシピ表示セクション */}
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ChefHat className="h-5 w-5" />
+                おすすめレシピ
+              </CardTitle>
+              <CardDescription>
+                AIが提案するレシピが表示されます
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {recipe ? (
+                <div className="space-y-4">
+                  <div className="prose prose-sm max-w-none">
+                    <ReactMarkdown>{recipe}</ReactMarkdown>
                   </div>
-
-                  {/* 使いたい食材エリア */}
-                  {ingredients.length > 0 && (
+                  {recipeName && (
+                    <YouTubeVideos
+                      videos={youtubeVideos}
+                      recipeName={recipeName}
+                    />
+                  )}
+                  {savedRecipeId && (
                     <>
-                      <div className="flex justify-center">
-                        <ArrowDown className="h-4 w-4 text-gray-400" />
+                      <Separator />
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">
+                          このレシピはいかがですか？
+                        </span>
+                        <StarRating
+                          rating={recipeRating}
+                          onRate={async (rating) => {
+                            setRecipeRating(rating);
+                            try {
+                              await fetch(
+                                `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/recipes/${savedRecipeId}/rating`,
+                                {
+                                  method: "PATCH",
+                                  headers: {
+                                    "Content-Type": "application/json",
+                                  },
+                                  body: JSON.stringify({ rating }),
+                                }
+                              );
+                              toast.success("評価を記録しました");
+                            } catch {
+                              console.error("Failed to save rating");
+                            }
+                          }}
+                        />
                       </div>
-                      <div className="space-y-2">
-                        <h3 className="font-medium text-sm text-orange-700">
-                          特に使いたい食材 ({selectedIngredients.length}個)
-                        </h3>
-                        <div
-                          className={`min-h-[48px] rounded-lg border-2 border-dashed p-3 transition-colors ${
-                            selectedIngredients.length > 0
-                              ? "border-orange-300 bg-orange-50"
-                              : "border-gray-300 bg-gray-50"
-                          }`}
-                        >
-                          {selectedIngredients.length === 0 ? (
-                            <p className="text-gray-400 text-sm text-center">
-                              上の所有食材から + で追加してください
-                            </p>
-                          ) : (
-                            <div className="flex flex-wrap gap-2">
-                              {selectedIngredients.map((ingredient, index) => (
-                                <Badge
-                                  key={index}
-                                  variant="outline"
-                                  className="flex items-center gap-1 px-3 py-1 border-orange-600 text-orange-600 hover:bg-orange-50 cursor-pointer select-none"
-                                  onClick={() => removeFromSelected(ingredient)}
-                                >
-                                  <X className="h-3 w-3 text-orange-600" />
-                                  {ingredient}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                      {recipeRating && (
+                        <p className="text-xs text-gray-400 text-right">
+                          次回のレシピ提案に反映されます
+                        </p>
+                      )}
                     </>
                   )}
-
-                  <Separator />
-
-                  {/* 人数選択 */}
-                  <div className="flex items-center gap-2 justify-end">
-                    <h3 className="font-medium text-sm text-gray-700">分量</h3>
-                    <select
-                      value={servings}
-                      onChange={(e) => setServings(Number(e.target.value))}
-                      className="rounded-md border border-gray-300 px-3 py-1.5 text-sm"
-                    >
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                        <option key={n} value={n}>{n}人分</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <Button
-                    onClick={generateRecipe}
-                    disabled={
-                      selectedIngredients.length === 0 || isGenerating
-                    }
-                    className="w-full bg-orange-600 hover:bg-orange-700"
-                    size="lg"
-                  >
-                    {isGenerating ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        レシピを生成中...
-                      </>
-                    ) : (
-                      <>
-                        <ChefHat className="h-4 w-4 mr-2" />
-                        AIレシピを作成
-                        {selectedIngredients.length > 0 &&
-                          ` (${selectedIngredients.length}食材)`}
-                      </>
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* レシピ表示セクション */}
-              <Card className="w-full">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <ChefHat className="h-5 w-5" />
-                    おすすめレシピ
-                  </CardTitle>
-                  <CardDescription>
-                    AIが提案するレシピが表示されます
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {recipe ? (
-                    <div className="space-y-4">
-                      <div className="prose prose-sm max-w-none">
-                        <ReactMarkdown>{recipe}</ReactMarkdown>
-                      </div>
-                      {recipeName && (
-                        <YouTubeVideos videos={youtubeVideos} recipeName={recipeName} />
-                      )}
-                      {savedRecipeId && (
-                        <>
-                          <Separator />
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">
-                              このレシピはいかがですか？
-                            </span>
-                            <StarRating
-                              rating={recipeRating}
-                              onRate={async (rating) => {
-                                setRecipeRating(rating);
-                                try {
-                                  await fetch(
-                                    `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/recipes/${savedRecipeId}/rating`,
-                                    {
-                                      method: "PATCH",
-                                      headers: { "Content-Type": "application/json" },
-                                      body: JSON.stringify({ rating }),
-                                    }
-                                  );
-                                  toast.success("評価を記録しました");
-                                } catch {
-                                  console.error("Failed to save rating");
-                                }
-                              }}
-                            />
-                          </div>
-                          {recipeRating && (
-                            <p className="text-xs text-gray-400 text-right">
-                              次回のレシピ提案に反映されます
-                            </p>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12 text-gray-500">
-                      <ChefHat className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                      <p>「AIレシピを作成」ボタンを押して</p>
-                      <p>おすすめレシピを生成してください</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
+                </div>
+              ) : (
+                <div className="text-center py-12 text-gray-500">
+                  <ChefHat className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                  <p>「AIレシピを作成」ボタンを押して</p>
+                  <p>おすすめレシピを生成してください</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
-
-      <ConfirmDialog
-        open={showIngredientDeleteConfirm}
-        onOpenChange={(open) => {
-          setShowIngredientDeleteConfirm(open);
-          if (!open) setIngredientToDelete("");
-        }}
-        title="食材削除の確認"
-        description={`本当に「${ingredientToDelete}」を削除しますか？`}
-        onConfirm={() => {
-          setIngredients(
-            ingredients.filter((i) => i !== ingredientToDelete)
-          );
-          setSelectedIngredients(
-            selectedIngredients.filter((i) => i !== ingredientToDelete)
-          );
-          setIngredientToDelete("");
-        }}
-      />
-
-      <IngredientValidationDialog
-        open={showValidationDialog}
-        onOpenChange={setShowValidationDialog}
-        results={validationResults}
-        onConfirm={(selected) => {
-          if (selected.length > 0) {
-            setIngredients((prev) => [...prev, ...selected]);
-            toast.success(`${selected.length}個の食材を追加しました`);
-          }
-        }}
-      />
     </>
   );
 }
