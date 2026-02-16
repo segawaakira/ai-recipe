@@ -70,12 +70,6 @@ export function RecipeDisplaySection({
             <div className="markdown-content">
               <ReactMarkdown>{recipe}</ReactMarkdown>
             </div>
-            {recipeName && (
-              <YouTubeVideos
-                videos={youtubeVideos}
-                recipeName={recipeName}
-              />
-            )}
             {savedRecipeId && (
               <>
                 <Separator />
@@ -91,6 +85,12 @@ export function RecipeDisplaySection({
                   </p>
                 )}
               </>
+            )}
+            {recipeName && (
+              <YouTubeVideos
+                videos={youtubeVideos}
+                recipeName={recipeName}
+              />
             )}
           </div>
         ) : (

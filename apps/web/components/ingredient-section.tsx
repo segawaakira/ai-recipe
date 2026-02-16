@@ -380,7 +380,7 @@ export function IngredientSection({
                   }`}
                 >
                   {selectedIngredients.length === 0 ? (
-                    <p className="text-gray-400 text-sm text-center">
+                    <p className="text-gray-400 text-xs text-center">
                       上の所有食材から + で追加してください
                     </p>
                   ) : (
