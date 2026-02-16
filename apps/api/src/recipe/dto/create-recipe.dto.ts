@@ -16,6 +16,9 @@ export class CreateRecipeDto {
   @ApiProperty({ example: 2 })
   servings: number;
 
+  @ApiProperty({ example: '和食', required: false, nullable: true })
+  genre?: string;
+
   @ApiProperty({ example: [{ videoId: 'abc', title: 'Recipe video', channelTitle: 'Channel', thumbnail: 'https://...' }], required: false, nullable: true })
   youtubeVideos?: unknown;
 }

@@ -49,7 +49,7 @@ export default function SignIn() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-orange-50 to-red-50 p-4">
+    <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-md rounded-lg border bg-white p-8 shadow-sm space-y-8">
         <div>
           <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">

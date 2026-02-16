@@ -30,6 +30,7 @@ model Recipe {
   content       String
   ingredients   String[]
   servings      Int
+  genre         String?
   youtubeVideos Json?
 
   rating        Int?

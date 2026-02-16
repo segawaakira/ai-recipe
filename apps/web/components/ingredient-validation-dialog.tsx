@@ -49,13 +49,15 @@ export function IngredientValidationDialog({
     setCheckedItems((prev) => ({ ...prev, [name]: !prev[name] }));
   };
 
+  const okResults = results.filter(
+    (r) => r.isFood && !r.similarTo && !r.isDuplicate
+  );
+  const selectedProblem = problemResults.filter(
+    (r) => !r.isDuplicate && checkedItems[r.name]
+  );
+  const selectedCount = okResults.length + selectedProblem.length;
+
   const handleConfirm = () => {
-    const okResults = results.filter(
-      (r) => r.isFood && !r.similarTo && !r.isDuplicate
-    );
-    const selectedProblem = problemResults.filter(
-      (r) => !r.isDuplicate && checkedItems[r.name]
-    );
     const selectedNames = [
       ...okResults.map((r) => r.name),
       ...selectedProblem.map((r) => r.name),
@@ -95,8 +97,8 @@ export function IngredientValidationDialog({
                 <input
                   type="checkbox"
                   checked={checkedItems[result.name] ?? false}
-                  onChange={() => toggleItem(result.name)}
-                  className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-orange-600"
+                  readOnly
+                  className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-orange-600 pointer-events-none"
                 />
               )}
               <div className="flex-1 min-w-0">
@@ -127,6 +129,7 @@ export function IngredientValidationDialog({
           </Button>
           <Button
             onClick={handleConfirm}
+            disabled={selectedCount === 0}
             className="bg-orange-600 hover:bg-orange-700"
           >
             追加する

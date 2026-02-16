@@ -248,6 +248,8 @@ export interface components {
             ingredients: string[];
             /** @example 2 */
             servings: number;
+            /** @example 和食 */
+            genre?: string | null;
             /**
              * @example [
              *       {
@@ -280,6 +282,8 @@ export interface components {
             ingredients: string[];
             /** @example 2 */
             servings: number;
+            /** @example 和食 */
+            genre?: string | null;
             /** @example null */
             youtubeVideos?: Record<string, never> | null;
             /** @example null */

@@ -22,7 +22,7 @@ export function YouTubeVideos({ videos, recipeName }: YouTubeVideosProps) {
     <div className="pt-4 border-t space-y-3 mt-4">
       <h4 className="font-medium text-sm flex items-center gap-2 text-red-700">
         <Youtube className="h-4 w-4" />
-        関連する動画
+        関連しそうなYouTubeレシピ動画
       </h4>
 
       {playingVideoId && (

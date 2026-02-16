@@ -16,6 +16,9 @@ export class RecipeResponseDto {
   @ApiProperty({ example: 2 })
   servings: number;
 
+  @ApiProperty({ example: '和食', required: false, nullable: true })
+  genre: string | null;
+
   @ApiProperty({ example: null, required: false, nullable: true })
   youtubeVideos: unknown;
 

@@ -1,13 +1,12 @@
 "use client";
 
-import { Badge } from "@repo/ui/components/badge";
+import { Button } from "@repo/ui/components/button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
-import { Button } from "@repo/ui/components/button";
 import { ArrowLeft, ChefHat, Clock, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
@@ -15,7 +14,7 @@ import ReactMarkdown from "react-markdown";
 import { apiClient } from "@/lib/api-client";
 import { useToast } from "@repo/ui/hooks/use-toast";
 import { ConfirmDialog } from "components/confirm-dialog";
-import { Header } from "components/header";
+import { RecipeMeta } from "components/recipe-meta";
 import { StarRating } from "components/star-rating";
 import { YouTubeVideos } from "components/youtube-videos";
 import { useParams, useRouter } from "next/navigation";
@@ -26,6 +25,7 @@ interface Recipe {
   content: string;
   ingredients: string[];
   servings: number;
+  genre: string | null;
   youtubeVideos: { videoId: string; title: string; channelTitle: string; thumbnail: string }[] | null;
   rating: number | null;
   createdAt: string;
@@ -62,11 +62,7 @@ export default function RecipeDetailPage() {
   }, [params.id]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
-      <Header />
-
-      <div className="p-4">
-        <div className="max-w-[640px] mx-auto space-y-4">
+    <div className="space-y-4">
           <button
             type="button"
             onClick={() => router.back()}
@@ -119,18 +115,13 @@ export default function RecipeDetailPage() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex flex-wrap gap-1">
-                  {recipe.ingredients.map((ing, i) => (
-                    <Badge key={i} variant="secondary" className="text-xs">
-                      {ing}
-                    </Badge>
-                  ))}
-                  <span className="text-xs text-gray-500 ml-2 self-center">
-                    {recipe.servings}人分
-                  </span>
-                </div>
+                <RecipeMeta
+                  ingredients={recipe.ingredients}
+                  servings={recipe.servings}
+                  genre={recipe.genre}
+                />
 
-                <div className="prose prose-sm max-w-none">
+                <div className="markdown-content">
                   <ReactMarkdown>{recipe.content}</ReactMarkdown>
                 </div>
 
@@ -152,9 +143,6 @@ export default function RecipeDetailPage() {
               </CardContent>
             </Card>
           )}
-        </div>
-      </div>
-
       {recipe && (
         <ConfirmDialog
           open={showDeleteDialog}

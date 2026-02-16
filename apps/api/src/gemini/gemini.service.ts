@@ -11,6 +11,7 @@ export class GeminiService {
     allIngredients: string[],
     servings: number,
     ratedRecipes?: { name: string; rating: number }[],
+    genre?: string,
   ): Promise<{ recipe: string; recipeName: string }> {
     const otherIngredients = allIngredients.filter(
       (i) => !preferredIngredients.includes(i),
@@ -18,8 +19,10 @@ export class GeminiService {
 
     const preferenceSection = this.buildPreferenceSection(ratedRecipes);
 
+    const genreSection = genre ? `\n【ジャンル】${genre}\n` : '';
+
     const prompt = `以下の条件で、日本語で家庭向けの料理を1つ提案してください。
-${preferenceSection}
+${preferenceSection}${genreSection}
 【人数】${servings}人分
 
 【特に使いたい食材】（必ずこれらを中心に使ってください）
@@ -35,6 +38,7 @@ ${
 - 「特に使いたい食材」をなるべく全て使うレシピにしてください
 - 足りない食材があっても「その他持っている食材」から相性の良いものを選んで補完してください
 - 持っていない食材は基本的に使わないでください（調味料は除く）
+${genre ? `- 「${genre}」のジャンルに合った料理を提案してください` : ''}
 ${ratedRecipes && ratedRecipes.length > 0 ? '- ユーザーの好みを考慮し、同じレシピは提案しないでください\n' : ''}
 必ず以下の形式で出力してください：
 # 料理名
@@ -66,8 +70,9 @@ ${ratedRecipes && ratedRecipes.length > 0 ? '- ユーザーの好みを考慮し
 
     const titleMatch = result.match(/^#\s+(.+)$/m);
     const recipeName = titleMatch ? titleMatch[1].trim() : '';
+    const recipeContent = result.replace(/^#\s+.+\n+/, '');
 
-    return { recipe: result, recipeName };
+    return { recipe: recipeContent, recipeName };
   }
 
   async recognizeIngredients(
