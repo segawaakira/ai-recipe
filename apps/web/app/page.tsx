@@ -14,7 +14,7 @@ import {
 import { Input } from "@repo/ui/components/input";
 import { Separator } from "@repo/ui/components/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/components/tabs";
-import { ArrowDown, ChefHat, Loader2, Plus, Trash2, X } from "lucide-react";
+import { ArrowDown, ChefHat, Check, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
@@ -60,6 +60,7 @@ export default function RecipeApp() {
   const [showValidationDialog, setShowValidationDialog] = useState(false);
   const [validationResults, setValidationResults] = useState<ValidationResult[]>([]);
   const [isValidating, setIsValidating] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -361,9 +362,40 @@ export default function RecipeApp() {
 
                   {/* 所有食材一覧 */}
                   <div className="space-y-2">
-                    <h3 className="font-medium text-sm text-gray-700">
-                      所有食材 ({ingredients.length}個)
-                    </h3>
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-medium text-sm text-gray-700">
+                        所有食材 ({ingredients.length}個)
+                      </h3>
+                      {ingredients.length > 0 && (
+                        <Button
+                          variant={isEditMode ? "default" : "ghost"}
+                          size="sm"
+                          className={`h-7 px-2 text-xs gap-1 ${
+                            isEditMode
+                              ? "bg-orange-600 hover:bg-orange-700 text-white"
+                              : "text-gray-500 hover:text-gray-700"
+                          }`}
+                          onClick={() => setIsEditMode(!isEditMode)}
+                        >
+                          {isEditMode ? (
+                            <>
+                              <Check className="h-3 w-3" />
+                              完了
+                            </>
+                          ) : (
+                            <>
+                              <Pencil className="h-3 w-3" />
+                              編集
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                    {isEditMode && (
+                      <p className="text-xs text-red-500">
+                        削除する食材をタップしてください
+                      </p>
+                    )}
                     {ingredients.length === 0 ? (
                       <p className="text-gray-500 text-sm py-4 text-center">
                         食材を追加してください
@@ -374,34 +406,35 @@ export default function RecipeApp() {
                           <Badge
                             key={index}
                             variant="secondary"
-                            className={`flex items-center gap-1 px-3 py-1 ${
-                              selectedIngredients.includes(ingredient)
-                                ? "opacity-50"
-                                : ""
+                            className={`flex items-center gap-1 px-3 py-1 cursor-pointer select-none ${
+                              isEditMode
+                                ? "border border-red-200 hover:bg-red-100"
+                                : selectedIngredients.includes(ingredient)
+                                  ? "opacity-50 cursor-default"
+                                  : "hover:bg-orange-100"
                             }`}
-                          >
-                            {!selectedIngredients.includes(ingredient) && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-4 w-4 p-0 hover:bg-green-100"
-                                onClick={() => addToSelected(ingredient)}
-                              >
-                                <Plus className="h-3 w-3 text-green-600" />
-                              </Button>
-                            )}
-                            {ingredient}
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-4 w-4 p-0 hover:bg-red-100"
-                              onClick={() => {
+                            onClick={() => {
+                              if (isEditMode) {
                                 setIngredientToDelete(ingredient);
                                 setShowIngredientDeleteConfirm(true);
-                              }}
-                            >
-                              <Trash2 className="h-3 w-3 text-red-500" />
-                            </Button>
+                              } else if (!selectedIngredients.includes(ingredient)) {
+                                addToSelected(ingredient);
+                              }
+                            }}
+                          >
+                            {isEditMode ? (
+                              <>
+                                <Trash2 className="h-3 w-3 text-red-500" />
+                                {ingredient}
+                              </>
+                            ) : (
+                              <>
+                                {!selectedIngredients.includes(ingredient) && (
+                                  <Plus className="h-3 w-3 text-orange-600" />
+                                )}
+                                {ingredient}
+                              </>
+                            )}
                           </Badge>
                         ))}
                       </div>
@@ -434,19 +467,12 @@ export default function RecipeApp() {
                               {selectedIngredients.map((ingredient, index) => (
                                 <Badge
                                   key={index}
-                                  className="flex items-center gap-1 px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white"
+                                  variant="outline"
+                                  className="flex items-center gap-1 px-3 py-1 border-orange-600 text-orange-600 hover:bg-orange-50 cursor-pointer select-none"
+                                  onClick={() => removeFromSelected(ingredient)}
                                 >
+                                  <X className="h-3 w-3 text-orange-600" />
                                   {ingredient}
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-4 w-4 p-0 hover:bg-orange-800"
-                                    onClick={() =>
-                                      removeFromSelected(ingredient)
-                                    }
-                                  >
-                                    <X className="h-3 w-3 text-white" />
-                                  </Button>
                                 </Badge>
                               ))}
                             </div>
