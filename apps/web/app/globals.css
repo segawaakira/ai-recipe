@@ -126,6 +126,16 @@
   }
 }
 
+body {
+/* 仮背景 */
+  background-color:#FBF1E9;
+  background-image:
+    radial-gradient(ellipse at 50% 120px, rgba(255,255,255,.70), transparent 55%),
+    repeating-linear-gradient(45deg,
+      rgba(249,115,22,.045) 0 8px,
+      transparent 8px 28px);
+}
+
 /* Markdown content styles */
 .markdown-content {
   /* font-size: 0.875rem;
