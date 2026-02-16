@@ -1,5 +1,6 @@
 "use client";
 
+import { apiClient } from "@/lib/api-client";
 import { Button } from "@repo/ui/components/button";
 import {
   Dialog,
@@ -16,10 +17,9 @@ import {
   DropdownMenuTrigger,
 } from "@repo/ui/components/dropdown-menu";
 import { useToast } from "@repo/ui/hooks/use-toast";
-import { apiClient } from "@/lib/api-client";
 import { ChefHat, Clock, LogOut, User, UserX } from "lucide-react";
-import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
+import Link from "next/link";
 import { useState } from "react";
 
 export function Header() {
@@ -70,9 +70,8 @@ export function Header() {
   };
 
   return (
-    <>
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-[640px] mx-auto px-4 py-3 flex justify-between items-center">
+    <div className="px-4 bg-white shadow-sm border-b">
+      <header className="max-w-md mx-auto py-3 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2">
             <ChefHat className="h-8 w-8 text-orange-600" />
             <h1 className="text-xl font-bold text-gray-900">
@@ -124,7 +123,6 @@ export function Header() {
               </Button>
             </div>
           )}
-        </div>
       </header>
 
       <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
@@ -158,6 +156,6 @@ export function Header() {
           </div>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }

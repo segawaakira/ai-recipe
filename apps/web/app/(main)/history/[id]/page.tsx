@@ -15,7 +15,6 @@ import ReactMarkdown from "react-markdown";
 import { apiClient } from "@/lib/api-client";
 import { useToast } from "@repo/ui/hooks/use-toast";
 import { ConfirmDialog } from "components/confirm-dialog";
-import { Header } from "components/header";
 import { StarRating } from "components/star-rating";
 import { YouTubeVideos } from "components/youtube-videos";
 import { useParams, useRouter } from "next/navigation";
@@ -62,11 +61,7 @@ export default function RecipeDetailPage() {
   }, [params.id]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
-      <Header />
-
-      <div className="p-4">
-        <div className="max-w-[640px] mx-auto space-y-4">
+    <div className="space-y-4">
           <button
             type="button"
             onClick={() => router.back()}
@@ -152,9 +147,6 @@ export default function RecipeDetailPage() {
               </CardContent>
             </Card>
           )}
-        </div>
-      </div>
-
       {recipe && (
         <ConfirmDialog
           open={showDeleteDialog}

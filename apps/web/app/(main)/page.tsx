@@ -14,14 +14,13 @@ import {
 import { Input } from "@repo/ui/components/input";
 import { Separator } from "@repo/ui/components/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/components/tabs";
-import { ArrowDown, ChefHat, Check, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
+import { ArrowDown, Carrot, Check, ChefHat, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 import { apiClient } from "@/lib/api-client";
 import { useToast } from "@repo/ui/hooks/use-toast";
 import { ConfirmDialog } from "components/confirm-dialog";
-import { Header } from "components/header";
 import { ImageUploadArea } from "components/image-upload-area";
 import {
   IngredientValidationDialog,
@@ -263,52 +262,38 @@ export default function RecipeApp() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
-      <Header />
-
-      <div className="p-4">
-        <div className="max-w-[640px] mx-auto space-y-6">
-          {!session?.user?.id && (
-            <Card className="bg-blue-50 border-blue-200">
-              <CardContent className="pt-6">
-                <div className="text-center space-y-2">
-                  <User className="h-12 w-12 mx-auto text-blue-600" />
-                  <h3 className="font-semibold text-blue-900">
-                    ログインしてレシピを保存
-                  </h3>
-                  <p className="text-blue-700 text-sm">
-                    アカウントを作成すると、お気に入りのレシピを保存できます
-                  </p>
-                  <div className="flex gap-2 justify-center">
-                    <Button variant="outline" asChild>
-                      <a href="/auth/signin">ログイン</a>
-                    </Button>
-                    <Button asChild>
-                      <a href="/auth/signup">新規登録</a>
-                    </Button>
-                  </div>
+    <>
+      <div className="space-y-6">
+        {!session?.user?.id && (
+          <Card className="bg-blue-50 border-blue-200">
+            <CardContent className="pt-6">
+              <div className="text-center space-y-2">
+                <User className="h-12 w-12 mx-auto text-blue-600" />
+                <h3 className="font-semibold text-blue-900">
+                  ログインしてレシピを保存
+                </h3>
+                <p className="text-blue-700 text-sm">
+                  アカウントを作成すると、お気に入りのレシピを保存できます
+                </p>
+                <div className="flex gap-2 justify-center">
+                  <Button variant="outline" asChild>
+                    <a href="/auth/signin">ログイン</a>
+                  </Button>
+                  <Button asChild>
+                    <a href="/auth/signup">新規登録</a>
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-          <div className="max-w-[640px] mx-auto space-y-6">
-            {/* <div className="text-center space-y-2">
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center justify-center gap-2">
-                <ChefHat className="h-8 w-8 text-orange-600" />
-                AIレシピ提案アプリ
-              </h1>
-              <p className="text-gray-600">
-                所有している食材からAIがおすすめレシピを提案します
-              </p>
-            </div> */}
-
-            <div className="flex gap-4 flex-col w-full">
+        <div className="flex gap-4 flex-col w-full">
               {/* 食材管理セクション */}
               <Card className="w-full">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Plus className="h-5 w-5" />
+                    <Carrot className="h-5 w-5" />
                     食材管理
                   </CardTitle>
                   <CardDescription>
@@ -325,7 +310,7 @@ export default function RecipeApp() {
                       </TabsTrigger>
                       <TabsTrigger value="camera" className="flex items-center gap-1">
                         <Camera className="h-4 w-4" />
-                        カメラで追加
+                        画像から追加
                       </TabsTrigger>
                     </TabsList>
                     <TabsContent value="text">
@@ -588,8 +573,6 @@ export default function RecipeApp() {
                 </CardContent>
               </Card>
 
-            </div>
-          </div>
         </div>
       </div>
 
@@ -623,6 +606,6 @@ export default function RecipeApp() {
           }
         }}
       />
-    </div>
+    </>
   );
 }

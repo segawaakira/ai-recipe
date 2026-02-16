@@ -22,7 +22,6 @@ import { useCallback, useEffect, useState } from "react";
 
 import { apiClient } from "@/lib/api-client";
 import { ConfirmDialog } from "components/confirm-dialog";
-import { Header } from "components/header";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -141,16 +140,7 @@ export default function HistoryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
-      <Header />
-
-      <div className="p-4">
-        <div className="max-w-[640px] mx-auto space-y-6">
-          {/* <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Clock className="h-6 w-6 text-orange-600" />
-            レシピ提案履歴
-          </h2> */}
-
+    <div className="space-y-6">
           {!session?.user?.id ? (
             <Card className="bg-blue-50 border-blue-200">
               <CardContent className="pt-6">
@@ -352,9 +342,6 @@ export default function HistoryPage() {
               </CardContent>
             </Card>
           )}
-        </div>
-      </div>
-
       <ConfirmDialog
         open={recipeToDelete !== null}
         onOpenChange={(open) => {
