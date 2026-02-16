@@ -50,6 +50,7 @@ export default function HistoryPage() {
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(appliedSearch);
+  const [selectedRating, setSelectedRating] = useState<number | null>(ratingFilter);
 
   const updateQuery = useCallback((updates: { page?: number; search?: string; rating?: number | null; perPage?: number }) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -111,8 +112,9 @@ export default function HistoryPage() {
     fetchRecipes(currentPage, appliedSearch, ratingFilter);
   }, [currentPage, appliedSearch, ratingFilter, perPage, fetchRecipes]);
 
-  const handleSearch = () => {
-    updateQuery({ search: searchQuery, page: 1 });
+  const handleSearch = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    updateQuery({ search: searchQuery, rating: selectedRating, page: 1 });
   };
 
   const renderNoResults = (text: string) => {
@@ -135,23 +137,23 @@ export default function HistoryPage() {
                 <CardDescription>
                   過去に生成したレシピの一覧です ({total}件)
                 </CardDescription>
-                <div className="flex gap-2 pt-2">
+                <form onSubmit={handleSearch} className="flex gap-2 pt-2">
                   <div className="relative flex-1">
                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
                       placeholder="レシピ名・食材で検索..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
                       className="pl-8"
                     />
                   </div>
                   <select
-                    value={ratingFilter ?? ""}
-                    onChange={(e) => updateQuery({ rating: e.target.value ? Number(e.target.value) : null, page: 1 })}
+                    value={selectedRating ?? ""}
+                    onChange={(e) => setSelectedRating(e.target.value ? Number(e.target.value) : null)}
                     className="rounded-md border border-gray-300 px-2 py-1.5 text-sm min-w-[80px]"
                   >
-                    <option value="">評価</option>
+                    <option value="" disabled hidden>評価</option>
+                    <option value="">未選択</option>
                     {[5, 4, 3, 2, 1].map((n) => (
                       <option key={n} value={n}>{"★".repeat(n)}</option>
                     ))}
@@ -159,11 +161,11 @@ export default function HistoryPage() {
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={handleSearch}
+                    type="submit"
                   >
                     <Search className="h-4 w-4" />
                   </Button>
-                </div>
+                </form>
               </CardHeader>
               <CardContent>
                 {!isLoading && recipeHistory.length === 0 && (searchQuery || ratingFilter) ? (
