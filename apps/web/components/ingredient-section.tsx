@@ -257,6 +257,7 @@ export function IngredientSection({
                 <Button
                   onClick={addIngredient}
                   disabled={!newIngredient.trim() || isValidating}
+                  className="cursor-pointer"
                 >
                   {isValidating ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -287,7 +288,7 @@ export function IngredientSection({
                 <Button
                   variant={isEditMode ? "default" : "ghost"}
                   size="sm"
-                  className={`h-7 px-2 text-xs gap-1 ${
+                  className={`h-7 px-2 text-xs gap-1 cursor-pointer ${
                     isEditMode
                       ? "bg-orange-600 hover:bg-orange-700 text-white"
                       : "text-gray-500 hover:text-gray-700"
@@ -447,7 +448,7 @@ export function IngredientSection({
                   })
                 }
                 disabled={selectedIngredients.length === 0 || isGenerating}
-                className="w-full bg-orange-600 hover:bg-orange-700"
+                className="w-full bg-orange-600 hover:bg-orange-700 cursor-pointer"
                 size="lg"
               >
                 {isGenerating ? (

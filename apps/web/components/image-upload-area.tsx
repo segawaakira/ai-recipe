@@ -410,7 +410,7 @@ export function ImageUploadArea({
                         variant="ghost"
                         size="sm"
                         onClick={selectAll}
-                        className="text-xs h-7"
+                        className="text-xs h-7 cursor-pointer"
                       >
                         全選択
                       </Button>
@@ -418,7 +418,7 @@ export function ImageUploadArea({
                         variant="ghost"
                         size="sm"
                         onClick={deselectAll}
-                        className="text-xs h-7"
+                        className="text-xs h-7 cursor-pointer"
                       >
                         全解除
                       </Button>
@@ -445,13 +445,13 @@ export function ImageUploadArea({
                   </div>
 
                   <div className="flex gap-2 pt-2 justify-end">
-                    <Button variant="outline" onClick={resetUpload}>
+                    <Button variant="outline" onClick={resetUpload} className="cursor-pointer">
                       キャンセル
                     </Button>
                     <Button
                       onClick={addSelectedIngredients}
                       disabled={selectedIngredients.length === 0}
-                      className="bg-orange-600 hover:bg-orange-700"
+                      className="bg-orange-600 hover:bg-orange-700 cursor-pointer"
                     >
                       選択した食材を追加 ({selectedIngredients.length})
                     </Button>

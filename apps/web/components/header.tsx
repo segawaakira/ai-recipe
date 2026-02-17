@@ -3,13 +3,6 @@
 import { apiClient } from "@/lib/api-client";
 import { Button } from "@repo/ui/components/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@repo/ui/components/dialog";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -21,6 +14,7 @@ import { ChefHat, Clock, LogOut, User, UserX } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";
+import { ConfirmDialog } from "./confirm-dialog";
 
 export function Header() {
   const { data: session } = useSession();
@@ -34,14 +28,6 @@ export function Header() {
   const handleDeleteAccount = async () => {
     if (!session?.user?.id) {
       toast.error("User session not found");
-      return;
-    }
-
-    const confirmed = window.confirm(
-      "本当にアカウントを削除しますか？この操作は取り消せません。"
-    );
-
-    if (!confirmed) {
       return;
     }
 
@@ -125,37 +111,13 @@ export function Header() {
           )}
       </header>
 
-      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-red-600">
-              アカウント削除の確認
-            </DialogTitle>
-            <DialogDescription>
-              本当にアカウントを削除しますか？この操作は取り消せません。
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="flex gap-2 justify-end">
-              <Button
-                variant="outline"
-                onClick={() => setShowDeleteConfirm(false)}
-              >
-                キャンセル
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={() => {
-                  handleDeleteAccount();
-                  setShowDeleteConfirm(false);
-                }}
-              >
-                削除する
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        title="アカウント削除の確認"
+        description="本当にアカウントを削除しますか？この操作は取り消せません。"
+        onConfirm={handleDeleteAccount}
+      />
     </div>
   );
 }

@@ -178,6 +178,7 @@ export default function HistoryPage() {
                     variant="outline"
                     size="icon"
                     type="submit"
+                    className="cursor-pointer"
                   >
                     <Search className="h-4 w-4" />
                   </Button>

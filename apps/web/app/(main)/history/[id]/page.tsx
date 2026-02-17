@@ -130,7 +130,7 @@ export default function RecipeDetailPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="text-red-500 hover:bg-red-50 hover:text-red-600"
+                    className="text-red-500 hover:bg-red-50 hover:text-red-600 cursor-pointer"
                     onClick={() => setShowDeleteDialog(true)}
                   >
                     <Trash2 className="h-4 w-4 mr-1.5" />

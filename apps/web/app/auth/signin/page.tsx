@@ -69,12 +69,12 @@ export default function SignIn() {
               )}
             </div>
           </div>
-          <Button type="submit" disabled={isSubmitting} className="w-full bg-orange-600 hover:bg-orange-700">
+          <Button type="submit" disabled={isSubmitting} className="w-full bg-orange-600 hover:bg-orange-700 cursor-pointer">
             {isSubmitting ? "ログイン中..." : "ログイン"}
           </Button>
           <p className="text-center text-sm text-gray-500">
             アカウントをお持ちでない方は
-            <a href="/auth/signup" className="text-orange-600 hover:text-orange-700 font-medium ml-1">
+            <a href="/auth/signup" className="text-orange-600 hover:text-orange-700 font-medium ml-1 cursor-pointer">
               新規登録
             </a>
           </p>
