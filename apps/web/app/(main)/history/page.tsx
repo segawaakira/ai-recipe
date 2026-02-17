@@ -1,5 +1,6 @@
 "use client";
 
+import { Skeleton } from "@repo/ui/components/skeleton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -203,13 +204,13 @@ export default function HistoryPage() {
                         Array.from({ length: perPage }).map((_, i) => (
                           <TableRow key={i}>
                             <TableCell>
-                              <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse" />
+                              <Skeleton className="h-4 w-3/4" />
                             </TableCell>
                             <TableCell className="text-center">
-                              <div className="h-4 w-8 bg-gray-200 rounded animate-pulse mx-auto" />
+                              <Skeleton className="h-4 w-8 mx-auto" />
                             </TableCell>
                             <TableCell>
-                              <div className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
+                              <Skeleton className="h-4 w-16" />
                             </TableCell>
                           </TableRow>
                         ))

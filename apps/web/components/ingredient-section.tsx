@@ -2,6 +2,7 @@
 
 import type React from "react";
 
+import { Skeleton } from "@repo/ui/components/skeleton";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -58,9 +59,9 @@ function IngredientsSkeleton() {
   return (
     <div className="flex flex-wrap gap-2">
       {[1, 2, 3, 4].map((i) => (
-        <div
+        <Skeleton
           key={i}
-          className="h-7 bg-gray-200 rounded-full animate-pulse"
+          className="h-7 rounded-full"
           style={{ width: `${60 + i * 12}px` }}
         />
       ))}
