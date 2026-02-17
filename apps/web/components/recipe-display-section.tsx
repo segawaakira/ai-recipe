@@ -29,7 +29,6 @@ interface RecipeDisplaySectionProps {
   savedRecipeId: number | null;
   recipeRating: number | null;
   recipeIngredients: string[];
-  recipeServings: number;
   recipeGenre: string;
   onRate: (rating: number) => Promise<void>;
 }
@@ -41,7 +40,6 @@ export function RecipeDisplaySection({
   savedRecipeId,
   recipeRating,
   recipeIngredients,
-  recipeServings,
   recipeGenre,
   onRate,
 }: RecipeDisplaySectionProps) {
@@ -56,17 +54,18 @@ export function RecipeDisplaySection({
           AIが提案するレシピが表示されます
         </CardDescription>
         {recipeName && (
+          <>
           <p className="text-lg font-semibold mt-1">{recipeName}</p>
+            <RecipeMeta
+              ingredients={recipeIngredients}
+              genre={recipeGenre}
+            />
+            </>
         )}
       </CardHeader>
       <CardContent>
         {recipe ? (
           <div className="space-y-4">
-            <RecipeMeta
-              ingredients={recipeIngredients}
-              servings={recipeServings}
-              genre={recipeGenre}
-            />
             <div className="markdown-content">
               <ReactMarkdown>{recipe}</ReactMarkdown>
             </div>

@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
-import { ArrowLeft, ChefHat, Clock, Trash2 } from "lucide-react";
+import { ArrowLeft, Clock, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
@@ -80,7 +80,6 @@ export default function RecipeDetailPage() {
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center py-12 text-gray-500">
-                  <ChefHat className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                   <p>レシピが見つかりません</p>
                 </div>
               </CardContent>
@@ -88,9 +87,8 @@ export default function RecipeDetailPage() {
           ) : (
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ChefHat className="h-5 w-5 text-orange-600" />
-                  {recipe.name}
+                <CardTitle>
+                  <h1 className="leading-normal text-lg">{recipe.name}</h1>
                 </CardTitle>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -113,14 +111,13 @@ export default function RecipeDetailPage() {
                     }}
                   />
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
                 <RecipeMeta
                   ingredients={recipe.ingredients}
-                  servings={recipe.servings}
                   genre={recipe.genre}
                 />
 
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="markdown-content">
                   <ReactMarkdown>{recipe.content}</ReactMarkdown>
                 </div>

@@ -28,7 +28,6 @@ export default function RecipeApp() {
   const [savedRecipeId, setSavedRecipeId] = useState<number | null>(null);
   const [recipeRating, setRecipeRating] = useState<number | null>(null);
   const [recipeIngredients, setRecipeIngredients] = useState<string[]>([]);
-  const [recipeServings, setRecipeServings] = useState(2);
   const [recipeGenre, setRecipeGenre] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasIngredients, setHasIngredients] = useState(false);
@@ -48,7 +47,6 @@ export default function RecipeApp() {
     setSavedRecipeId(null);
     setRecipeRating(null);
     setRecipeIngredients(params.selectedIngredients);
-    setRecipeServings(params.servings);
     setRecipeGenre(params.genre);
     try {
       let ratedRecipes: { name: string; rating: number }[] = [];
@@ -170,7 +168,6 @@ export default function RecipeApp() {
               savedRecipeId={savedRecipeId}
               recipeRating={recipeRating}
               recipeIngredients={recipeIngredients}
-              recipeServings={recipeServings}
               recipeGenre={recipeGenre}
               onRate={async (rating) => {
                 setRecipeRating(rating);
