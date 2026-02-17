@@ -246,6 +246,7 @@ export default function HistoryPage() {
                 <Pagination
                   currentPage={currentPage}
                   totalPages={totalPages}
+                  total={total}
                   perPage={perPage}
                   onPageChange={(page) => updateQuery({ page })}
                   onPerPageChange={(pp) => updateQuery({ perPage: pp, page: 1 })}
