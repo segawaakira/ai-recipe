@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@repo/ui/components/dropdown-menu";
 import { useToast } from "@repo/ui/hooks/use-toast";
-import { ChefHat, Clock, LogOut, User, UserX } from "lucide-react";
+import { ChefHat, Clock, LogOut, Menu, UserX } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";
@@ -67,12 +67,13 @@ export function Header() {
 
           {session?.user?.id ? (
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild className="cursor-pointer">
                 <Button
                   variant="ghost"
                   className="flex items-center gap-2 px-3"
+                  type="button"
                 >
-                  <User className="h-8 w-8 text-orange-600" />
+                  <Menu className="h-8 w-8 text-orange-600" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -80,19 +81,20 @@ export function Header() {
                   {session?.user?.email}
                 </p>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem asChild className="cursor-pointer">
                   <Link href="/history" className="flex items-center">
                     <Clock className="h-4 w-4 mr-2" />
                     レシピ提案履歴
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout}>
+                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                   <LogOut className="h-4 w-4 mr-2" />
                   ログアウト
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => setShowDeleteConfirm(true)}
+                  className="cursor-pointer"
                 >
                   <UserX className="h-4 w-4 mr-2" />
                   退会する
