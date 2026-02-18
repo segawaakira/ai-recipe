@@ -10,8 +10,9 @@ import {
   DropdownMenuTrigger,
 } from "@repo/ui/components/dropdown-menu";
 import { useToast } from "@repo/ui/hooks/use-toast";
-import { ChefHat, Clock, LogOut, Menu, UserX } from "lucide-react";
+import { Clock, LogOut, Menu, UserX } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { ConfirmDialog } from "./confirm-dialog";
@@ -59,7 +60,7 @@ export function Header() {
     <div className="px-4 bg-white shadow-sm border-b">
       <header className="max-w-md mx-auto py-3 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2">
-            <ChefHat className="h6 w-6 text-orange-600" />
+            <Image src="/logo.svg" alt="AI Recipe" width={28} height={28} />
             <h1 className="text-lg font-bold text-gray-900">
               AIレシピ提案アプリ
             </h1>

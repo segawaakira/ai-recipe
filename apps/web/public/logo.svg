@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256px" height="256px" viewBox="0 0 256 256" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 57.1 (83088) - https://sketch.com -->
+    <title>Artboard</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Artboard" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group" transform="translate(28.000000, 29.000000)">
+            <path d="M179,132 C179,132 179,129.556106 179,124.668319 L179,85.4438264 C179,83.2101076 179,80.6660144 179,77.8115466 C198.378751,71.6669292 203.473801,57.1421014 197.661699,43.4036637 C191.849597,29.6652259 172.002403,20.7023183 150.645656,22.1714204 C141.937838,8.71760946 122.017812,0 99.9832254,0 C77.9486391,0 58.0286126,8.71760946 49.320795,22.1714204 C27.974268,20.7126487 8.14425558,29.6739347 2.33462771,43.4047144 C-3.47500015,57.1354941 1.63870667,71.6534376 21,77.8042149 C21,80.6635705 21,83.2076637 21,85.4364947 L21,124.222711 C21,129.110498 21,131.581948 21,131.637059 L179,132 Z" id="Path" stroke="#EA580C" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M165.833333,198.912196 C179,198.912196 179,198.912196 179,188.205221 L179,130.922903 L21,130.912196 L21,188.205221 C21,198.912196 21,198.912196 34.1666667,198.912196 L165.833333,198.912196 Z" id="下の四角" stroke="#EA580C" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"></path>
+            <circle id="Oval-Copy" fill="#EA580C" cx="139" cy="165" r="16"></circle>
+            <circle id="Oval-Copy-2" fill="#EA580C" cx="61" cy="165" r="16"></circle>
+        </g>
+    </g>
+</svg>
