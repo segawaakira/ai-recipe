@@ -1,15 +1,12 @@
 "use client";
 
-import { Button } from "@repo/ui/components/button";
-import { Card, CardContent } from "@repo/ui/components/card";
-import { User } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { createAuthClient } from "@/lib/auth-api-client";
 import { useToast } from "@repo/ui/hooks/use-toast";
 import { IngredientSection } from "components/ingredient-section";
 import { RecipeDisplaySection } from "components/recipe-display-section";
 import { useSession } from "next-auth/react";
-import { createAuthClient } from "@/lib/auth-api-client";
 
 interface YouTubeVideo {
   videoId: string;
@@ -131,30 +128,6 @@ export default function RecipeApp() {
   return (
     <>
       <div className="space-y-6">
-        {!session?.user?.id && (
-          <Card className="bg-blue-50 border-blue-200">
-            <CardContent className="pt-6">
-              <div className="text-center space-y-2">
-                <User className="h-12 w-12 mx-auto text-blue-600" />
-                <h3 className="font-semibold text-blue-900">
-                  ログインしてレシピを保存
-                </h3>
-                <p className="text-blue-700 text-sm">
-                  アカウントを作成すると、お気に入りのレシピを保存できます
-                </p>
-                <div className="flex gap-2 justify-center">
-                  <Button variant="outline" asChild>
-                    <a href="/auth/signin">ログイン</a>
-                  </Button>
-                  <Button asChild>
-                    <a href="/auth/signup">新規登録</a>
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         <div className="flex gap-4 flex-col w-full">
           <IngredientSection
             session={session}
