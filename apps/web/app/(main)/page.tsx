@@ -3,13 +3,13 @@
 import { Button } from "@repo/ui/components/button";
 import { Card, CardContent } from "@repo/ui/components/card";
 import { User } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-import { apiClient } from "@/lib/api-client";
 import { useToast } from "@repo/ui/hooks/use-toast";
 import { IngredientSection } from "components/ingredient-section";
 import { RecipeDisplaySection } from "components/recipe-display-section";
 import { useSession } from "next-auth/react";
+import { createAuthClient } from "@/lib/auth-api-client";
 
 interface YouTubeVideo {
   videoId: string;
@@ -21,6 +21,11 @@ interface YouTubeVideo {
 export default function RecipeApp() {
   const { data: session } = useSession();
   const { toast } = useToast();
+
+  const authClient = useMemo(
+    () => session?.accessToken ? createAuthClient(session.accessToken) : null,
+    [session?.accessToken]
+  );
 
   const [recipe, setRecipe] = useState("");
   const [recipeName, setRecipeName] = useState("");
@@ -50,12 +55,12 @@ export default function RecipeApp() {
     setRecipeGenre(params.genre);
     try {
       let ratedRecipes: { name: string; rating: number }[] = [];
-      if (session?.user?.id) {
+      if (authClient) {
         try {
-          const ratedRes = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/recipes/rated?userId=${session.user.id}`
-          );
-          ratedRecipes = await ratedRes.json();
+          const { data } = await authClient.GET("/recipes/rated");
+          if (data) {
+            ratedRecipes = data as { name: string; rating: number }[];
+          }
         } catch {}
       }
 
@@ -91,11 +96,10 @@ export default function RecipeApp() {
           }
         } catch {}
 
-        if (session?.user?.id) {
+        if (authClient) {
           try {
-            const { data: savedRecipe } = await apiClient.POST("/recipes", {
+            const { data: savedRecipe } = await authClient.POST("/recipes", {
               body: {
-                userId: Number(session.user.id),
                 name: data.recipeName,
                 content: data.recipe,
                 ingredients: params.selectedIngredients,
@@ -172,16 +176,12 @@ export default function RecipeApp() {
               onRate={async (rating) => {
                 setRecipeRating(rating);
                 try {
-                  await fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/recipes/${savedRecipeId}/rating`,
-                    {
-                      method: "PATCH",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify({ rating }),
-                    }
-                  );
+                  if (authClient && savedRecipeId) {
+                    await authClient.PATCH("/recipes/{id}/rating", {
+                      params: { path: { id: String(savedRecipeId) } },
+                      body: { rating },
+                    });
+                  }
                   toast.success("評価を記録しました");
                 } catch {
                   console.error("Failed to save rating");

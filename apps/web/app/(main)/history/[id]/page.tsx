@@ -8,15 +8,16 @@ import {
   CardTitle,
 } from "@repo/ui/components/card";
 import { ArrowLeft, Clock, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
-import { apiClient } from "@/lib/api-client";
+import { createAuthClient } from "@/lib/auth-api-client";
 import { useToast } from "@repo/ui/hooks/use-toast";
 import { ConfirmDialog } from "components/confirm-dialog";
 import { RecipeMeta } from "components/recipe-meta";
 import { StarRating } from "components/star-rating";
 import { YouTubeVideos } from "components/youtube-videos";
+import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 
 interface Recipe {
@@ -32,6 +33,7 @@ interface Recipe {
 }
 
 export default function RecipeDetailPage() {
+  const { data: session } = useSession();
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
@@ -40,11 +42,17 @@ export default function RecipeDetailPage() {
   const [notFound, setNotFound] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
+  const authClient = useMemo(
+    () => session?.accessToken ? createAuthClient(session.accessToken) : null,
+    [session?.accessToken]
+  );
+
   useEffect(() => {
     const fetchRecipe = async () => {
+      if (!authClient) return;
       setIsLoading(true);
       try {
-        const { data, error } = await apiClient.GET("/recipes/{id}", {
+        const { data, error } = await authClient.GET("/recipes/{id}", {
           params: { path: { id: String(params.id) } },
         });
         if (error || !data) {
@@ -59,7 +67,7 @@ export default function RecipeDetailPage() {
       }
     };
     if (params.id) fetchRecipe();
-  }, [params.id]);
+  }, [params.id, authClient]);
 
   return (
     <div className="space-y-4">
@@ -99,10 +107,12 @@ export default function RecipeDetailPage() {
                     rating={recipe.rating}
                     onRate={async (rating) => {
                       try {
-                        await apiClient.PATCH("/recipes/{id}/rating", {
-                          params: { path: { id: String(recipe.id) } },
-                          body: { rating },
-                        });
+                        if (authClient) {
+                          await authClient.PATCH("/recipes/{id}/rating", {
+                            params: { path: { id: String(recipe.id) } },
+                            body: { rating },
+                          });
+                        }
                         setRecipe((prev) => prev ? { ...prev, rating } : prev);
                         toast.success("評価を記録しました");
                       } catch {
@@ -148,9 +158,11 @@ export default function RecipeDetailPage() {
           description={`本当に「${recipe.name}」を削除しますか？`}
           onConfirm={async () => {
             try {
-              await apiClient.DELETE("/recipes/{id}", {
-                params: { path: { id: String(recipe.id) } },
-              });
+              if (authClient) {
+                await authClient.DELETE("/recipes/{id}", {
+                  params: { path: { id: String(recipe.id) } },
+                });
+              }
               router.back();
             } catch {
               console.error("Failed to delete recipe");

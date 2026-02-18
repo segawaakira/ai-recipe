@@ -5,8 +5,6 @@ import {
   Body,
   HttpException,
   HttpStatus,
-  UsePipes,
-  ValidationPipe,
   Delete,
   Logger,
 } from '@nestjs/common';
@@ -14,10 +12,8 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
-import { ValidateUserDto } from './dto/validate-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { z } from 'zod';
-import { ZodDto } from 'nestjs-zod';
 
 const CreateUserInput = z.object({
   email: z.string().email(),
@@ -30,7 +26,6 @@ const CreateUserInput = z.object({
     ),
 });
 
-// Simplicity - Just a simple controller to create and list users
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
@@ -82,21 +77,6 @@ export class UsersController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-  }
-
-  @Post('validate')
-  @ApiOperation({ summary: 'Validate user credentials' })
-  @ApiResponse({ status: 200, description: 'User validated', type: UserResponseDto })
-  @ApiResponse({ status: 401, description: 'Invalid credentials' })
-  async validate(@Body() body: ValidateUserDto) {
-    const user = await this.usersService.validateUser(
-      body.email,
-      body.password,
-    );
-    if (!user) {
-      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
-    }
-    return user;
   }
 
   @Delete()

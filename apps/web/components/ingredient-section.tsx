@@ -31,9 +31,9 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-import { apiClient } from "@/lib/api-client";
+import { createAuthClient } from "@/lib/auth-api-client";
 import { useToast } from "@repo/ui/hooks/use-toast";
 import { ConfirmDialog } from "components/confirm-dialog";
 import { ImageUploadArea } from "components/image-upload-area";
@@ -44,7 +44,7 @@ import {
 import { Camera, Type } from "lucide-react";
 
 interface IngredientSectionProps {
-  session: { user?: { id?: string } } | null;
+  session: { user?: { id?: string }; accessToken?: string } | null;
   onGenerateRecipe: (params: {
     selectedIngredients: string[];
     allIngredients: string[];
@@ -80,6 +80,11 @@ export function IngredientSection({
   const [newIngredient, setNewIngredient] = useState("");
   const [isFetchedIngredients, setIsFetchedIngredients] = useState(false);
 
+  const authClient = useMemo(
+    () => session?.accessToken ? createAuthClient(session.accessToken) : null,
+    [session?.accessToken]
+  );
+
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
   const [servings, setServings] = useState(2);
   const [genre, setCuisine] = useState("");
@@ -98,12 +103,10 @@ export function IngredientSection({
   const isInitialLoad = useRef(true);
 
   useEffect(() => {
-    if (!session?.user?.id) return;
+    if (!authClient) return;
     const fetchIngredients = async () => {
       try {
-        const { data } = await apiClient.GET("/ingredient-sets", {
-          params: { query: { userId: Number(session?.user?.id) } },
-        });
+        const { data } = await authClient.GET("/ingredient-sets");
         if (data && data.length > 0 && data[0]) {
           setIngredients(data[0].ingredients);
         }
@@ -117,22 +120,21 @@ export function IngredientSection({
     };
 
     fetchIngredients();
-  }, [session?.user?.id]);
+  }, [authClient]);
 
   useEffect(() => {
     onHasIngredientsChange?.(ingredients.length > 0);
   }, [ingredients.length, onHasIngredientsChange]);
 
   useEffect(() => {
-    if (!session?.user?.id || !isFetchedIngredients) return;
+    if (!authClient || !isFetchedIngredients) return;
     if (isInitialLoad.current) {
       isInitialLoad.current = false;
       return;
     }
     const updateIngredients = async () => {
       try {
-        await apiClient.PATCH("/ingredient-sets/{id}", {
-          params: { path: { id: String(session?.user?.id) } },
+        await authClient.PATCH("/ingredient-sets", {
           body: {
             ingredients: ingredients,
           },
@@ -143,7 +145,7 @@ export function IngredientSection({
     };
 
     updateIngredients();
-  }, [ingredients, session?.user?.id, isFetchedIngredients]);
+  }, [ingredients, authClient, isFetchedIngredients]);
 
   const validateAndAddIngredients = async (newItems: string[]) => {
     if (newItems.length === 0) return;

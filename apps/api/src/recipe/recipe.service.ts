@@ -10,7 +10,7 @@ export class RecipeService {
     return this.prisma.prisma.recipe.findUnique({ where: { id } });
   }
 
-  async create(dto: CreateRecipeDto) {
+  async create(dto: CreateRecipeDto & { userId: number }) {
     return this.prisma.prisma.recipe.create({
       data: {
         name: dto.name,

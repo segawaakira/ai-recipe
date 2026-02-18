@@ -11,6 +11,7 @@ async function generateOpenApi() {
     .setTitle('Ai recipe API')
     .setDescription('Ai recipe API documentation')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

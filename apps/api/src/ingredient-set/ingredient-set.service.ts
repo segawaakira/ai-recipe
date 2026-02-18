@@ -8,7 +8,7 @@ import { CreateIngredientDto } from './dto/create-ingredient.dto';
 export class IngredientsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createIngredientSet(dto: CreateIngredientDto) {
+  async createIngredientSet(dto: CreateIngredientDto & { userId: number }) {
     return this.prisma.prisma.ingredientSet.create({
       data: {
         ingredients: dto.ingredients,

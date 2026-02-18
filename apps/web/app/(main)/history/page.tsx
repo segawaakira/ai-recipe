@@ -20,11 +20,11 @@ import {
   TableRow,
 } from "@repo/ui/components/table";
 import { Clock, Search, Star } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { apiClient } from "@/lib/api-client";
+import { createAuthClient } from "@/lib/auth-api-client";
 import { Pagination } from "components/pagination";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -50,6 +50,11 @@ export default function HistoryPage() {
   const { data: session, status: sessionStatus } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const authClient = useMemo(
+    () => session?.accessToken ? createAuthClient(session.accessToken) : null,
+    [session?.accessToken]
+  );
 
   const currentPage = Number(searchParams.get("page")) || 1;
   const appliedSearch = searchParams.get("search") || "";
@@ -97,13 +102,12 @@ export default function HistoryPage() {
   const totalPages = Math.max(1, Math.ceil(total / perPage));
 
   const fetchRecipes = useCallback(async (page: number, search: string, rating: number | null) => {
-    if (!session?.user?.id) return;
+    if (!authClient) return;
     setIsLoading(true);
     try {
-      const { data } = await apiClient.GET("/recipes", {
+      const { data } = await authClient.GET("/recipes", {
         params: {
           query: {
-            userId: Number(session.user.id),
             page,
             perPage,
             search: search || undefined,
@@ -122,7 +126,7 @@ export default function HistoryPage() {
         setIsLoading(false);
       }, 1000);
     }
-  }, [session?.user?.id, perPage]);
+  }, [authClient, perPage]);
 
   useEffect(() => {
     fetchRecipes(currentPage, appliedSearch, ratingFilter);

@@ -8,15 +8,20 @@ import {
   Query,
   Param,
   NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { RecipeService } from './recipe.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeRatingDto } from './dto/update-recipe-rating.dto';
 import { PaginatedRecipeResponseDto } from './dto/paginated-recipe-response.dto';
 import { RecipeResponseDto } from './dto/recipe-response.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CurrentUser } from '../auth/current-user.decorator';
 
 @ApiTags('recipes')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('recipes')
 export class RecipeController {
   constructor(private readonly recipeService: RecipeService) {}
@@ -24,26 +29,28 @@ export class RecipeController {
   @Post()
   @ApiOperation({ summary: 'Save a recipe' })
   @ApiResponse({ status: 201, description: 'Recipe saved', type: RecipeResponseDto })
-  async create(@Body() dto: CreateRecipeDto) {
-    return this.recipeService.create(dto);
+  async create(
+    @CurrentUser() user: { userId: number; email: string },
+    @Body() dto: CreateRecipeDto,
+  ) {
+    return this.recipeService.create({ ...dto, userId: user.userId });
   }
 
   @Get()
   @ApiOperation({ summary: 'Get recipes by user ID' })
-  @ApiQuery({ name: 'userId', type: Number })
   @ApiQuery({ name: 'page', type: Number, required: false })
   @ApiQuery({ name: 'perPage', type: Number, required: false })
   @ApiQuery({ name: 'search', type: String, required: false })
   @ApiQuery({ name: 'ratingFilter', type: Number, required: false })
   @ApiResponse({ status: 200, description: 'Paginated list of recipes', type: PaginatedRecipeResponseDto })
   async findByUserId(
-    @Query('userId') userId: number,
+    @CurrentUser() user: { userId: number; email: string },
     @Query('page') page?: number,
     @Query('perPage') perPage?: number,
     @Query('search') search?: string,
     @Query('ratingFilter') ratingFilter?: string,
   ) {
-    return this.recipeService.findByUserId(Number(userId), {
+    return this.recipeService.findByUserId(user.userId, {
       page: page ? Number(page) : undefined,
       perPage: perPage ? Number(perPage) : undefined,
       search: search || undefined,
@@ -53,14 +60,13 @@ export class RecipeController {
 
   @Get('rated')
   @ApiOperation({ summary: 'Get rated recipes for prompt context' })
-  @ApiQuery({ name: 'userId', type: Number })
   @ApiQuery({ name: 'limit', type: Number, required: false })
   async getRatedRecipes(
-    @Query('userId') userId: number,
+    @CurrentUser() user: { userId: number; email: string },
     @Query('limit') limit?: number,
   ) {
     return this.recipeService.getRatedRecipes(
-      Number(userId),
+      user.userId,
       limit ? Number(limit) : 10,
     );
   }

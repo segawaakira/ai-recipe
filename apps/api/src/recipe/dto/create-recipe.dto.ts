@@ -1,9 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateRecipeDto {
-  @ApiProperty({ example: 1 })
-  userId: number;
-
   @ApiProperty({ example: 'トマトパスタ' })
   name: string;
 
