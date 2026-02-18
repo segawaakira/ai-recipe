@@ -59,8 +59,8 @@ export function Header() {
     <div className="px-4 bg-white shadow-sm border-b">
       <header className="max-w-md mx-auto py-3 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2">
-            <ChefHat className="h-8 w-8 text-orange-600" />
-            <h1 className="text-xl font-bold text-gray-900">
+            <ChefHat className="h6 w-6 text-orange-600" />
+            <h1 className="text-lg font-bold text-gray-900">
               AIレシピ提案アプリ
             </h1>
           </Link>
@@ -70,7 +70,7 @@ export function Header() {
               <DropdownMenuTrigger asChild className="cursor-pointer">
                 <Button
                   variant="ghost"
-                  className="flex items-center gap-2 px-3"
+                  className="flex items-center"
                   type="button"
                 >
                   <Menu className="h-8 w-8 text-orange-600" />
