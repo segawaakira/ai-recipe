@@ -4,19 +4,16 @@ import {
   Post,
   Body,
   Patch,
-  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { IngredientsService } from './ingredient-set.service';
 import { UpdateIngredientDto } from './dto/update-ingredient.dto';
 import { CreateIngredientDto } from './dto/create-ingredient.dto';
 import { IngredientSetResponseDto } from './dto/ingredient-set-response.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 
 @ApiTags('ingredient-sets')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
 @Controller('ingredient-sets')
 export class IngredientsController {
   constructor(private readonly ingredientsService: IngredientsService) {}
