@@ -1,5 +1,7 @@
 "use client";
 
+import { Skeleton } from "@repo/ui/components/skeleton";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@repo/ui/components/button";
 import {
   Card,
@@ -18,12 +20,20 @@ import {
   TableRow,
 } from "@repo/ui/components/table";
 import { Clock, Search, Star } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-import { apiClient } from "@/lib/api-client";
+import { createAuthClient } from "@/lib/auth-api-client";
 import { Pagination } from "components/pagination";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+
+const RecipeSearchInput = z.object({
+  search: z.string(),
+  rating: z.string(),
+});
+type RecipeSearchInputType = z.infer<typeof RecipeSearchInput>;
 
 interface RecipeHistoryItem {
   id: number;
@@ -41,6 +51,11 @@ export default function HistoryPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const authClient = useMemo(
+    () => session?.accessToken ? createAuthClient(session.accessToken) : null,
+    [session?.accessToken]
+  );
+
   const currentPage = Number(searchParams.get("page")) || 1;
   const appliedSearch = searchParams.get("search") || "";
   const ratingFilter = searchParams.get("rating") ? Number(searchParams.get("rating")) : null;
@@ -49,8 +64,14 @@ export default function HistoryPage() {
   const [recipeHistory, setRecipeHistory] = useState<RecipeHistoryItem[]>([]);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState(appliedSearch);
-  const [selectedRating, setSelectedRating] = useState<number | null>(ratingFilter);
+
+  const { register, handleSubmit } = useForm<RecipeSearchInputType>({
+    resolver: zodResolver(RecipeSearchInput),
+    values: {
+      search: appliedSearch,
+      rating: ratingFilter !== null ? String(ratingFilter) : "",
+    },
+  });
 
   const updateQuery = useCallback((updates: { page?: number; search?: string; rating?: number | null; perPage?: number }) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -81,13 +102,12 @@ export default function HistoryPage() {
   const totalPages = Math.max(1, Math.ceil(total / perPage));
 
   const fetchRecipes = useCallback(async (page: number, search: string, rating: number | null) => {
-    if (!session?.user?.id) return;
+    if (!authClient) return;
     setIsLoading(true);
     try {
-      const { data } = await apiClient.GET("/recipes", {
+      const { data } = await authClient.GET("/recipes", {
         params: {
           query: {
-            userId: Number(session.user.id),
             page,
             perPage,
             search: search || undefined,
@@ -106,15 +126,18 @@ export default function HistoryPage() {
         setIsLoading(false);
       }, 1000);
     }
-  }, [session?.user?.id, perPage]);
+  }, [authClient, perPage]);
 
   useEffect(() => {
     fetchRecipes(currentPage, appliedSearch, ratingFilter);
   }, [currentPage, appliedSearch, ratingFilter, perPage, fetchRecipes]);
 
-  const handleSearch = (e?: React.FormEvent) => {
-    e?.preventDefault();
-    updateQuery({ search: searchQuery, rating: selectedRating, page: 1 });
+  const onSearch = (data: RecipeSearchInputType) => {
+    updateQuery({
+      search: data.search,
+      rating: data.rating ? Number(data.rating) : null,
+      page: 1,
+    });
   };
 
   const renderNoResults = (text: string) => {
@@ -137,19 +160,17 @@ export default function HistoryPage() {
                 <CardDescription>
                   過去に生成したレシピの一覧です ({total}件)
                 </CardDescription>
-                <form onSubmit={handleSearch} className="flex gap-2 pt-2">
+                <form onSubmit={handleSubmit(onSearch)} className="flex gap-2 pt-2">
                   <div className="relative flex-1">
                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
+                      {...register("search")}
                       placeholder="レシピ名・食材で検索..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-8"
                     />
                   </div>
                   <select
-                    value={selectedRating ?? ""}
-                    onChange={(e) => setSelectedRating(e.target.value ? Number(e.target.value) : null)}
+                    {...register("rating")}
                     className="rounded-md border border-gray-300 px-2 py-1.5 text-sm min-w-[80px]"
                   >
                     <option value="" disabled hidden>評価</option>
@@ -162,13 +183,14 @@ export default function HistoryPage() {
                     variant="outline"
                     size="icon"
                     type="submit"
+                    className="cursor-pointer"
                   >
                     <Search className="h-4 w-4" />
                   </Button>
                 </form>
               </CardHeader>
               <CardContent>
-                {!isLoading && recipeHistory.length === 0 && (searchQuery || ratingFilter) ? (
+                {!isLoading && recipeHistory.length === 0 && (appliedSearch || ratingFilter) ? (
                   renderNoResults("該当するレシピが見つかりません")
                 ) : !isLoading && recipeHistory.length === 0 ? (
                   renderNoResults("まだレシピ履歴がありません")
@@ -186,13 +208,13 @@ export default function HistoryPage() {
                         Array.from({ length: perPage }).map((_, i) => (
                           <TableRow key={i}>
                             <TableCell>
-                              <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse" />
+                              <Skeleton className="h-4 w-3/4" />
                             </TableCell>
                             <TableCell className="text-center">
-                              <div className="h-4 w-8 bg-gray-200 rounded animate-pulse mx-auto" />
+                              <Skeleton className="h-4 w-8 mx-auto" />
                             </TableCell>
                             <TableCell>
-                              <div className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
+                              <Skeleton className="h-4 w-16" />
                             </TableCell>
                           </TableRow>
                         ))
@@ -228,6 +250,7 @@ export default function HistoryPage() {
                 <Pagination
                   currentPage={currentPage}
                   totalPages={totalPages}
+                  total={total}
                   perPage={perPage}
                   onPageChange={(page) => updateQuery({ page })}
                   onPerPageChange={(pp) => updateQuery({ perPage: pp, page: 1 })}

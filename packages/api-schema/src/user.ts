@@ -12,3 +12,9 @@ export const CreateUserInput = z.object({
 });
 
 export type CreateUserInputType = z.infer<typeof CreateUserInput>;
+
+export const SignInInput = z.object({
+  email: z.string().email(),
+  password: z.string().min(1, "Password is required"),
+});
+export type SignInInputType = z.infer<typeof SignInInput>;

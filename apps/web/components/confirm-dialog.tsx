@@ -33,7 +33,7 @@ export function ConfirmDialog({
         </DialogHeader>
         <div className="space-y-4">
           <div className="flex gap-2 justify-end">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <Button variant="outline" onClick={() => onOpenChange(false)} className="cursor-pointer">
               キャンセル
             </Button>
             <Button
@@ -42,6 +42,7 @@ export function ConfirmDialog({
                 onConfirm();
                 onOpenChange(false);
               }}
+              className="cursor-pointer"
             >
               削除する
             </Button>

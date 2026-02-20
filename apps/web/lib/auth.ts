@@ -12,17 +12,27 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
-          const { data, error } = await apiClient.POST("/users/validate", {
+          const { data, error } = await apiClient.POST("/auth/login", {
             body: {
               email: credentials?.email ?? "",
               password: credentials?.password ?? "",
             },
           });
           if (error || !data) {
+            console.error("[NextAuth] Login API error:", error);
             return null;
           }
-          return { id: String(data.id), email: data.email };
+          // JWT payload からデコードして id/email を取得
+          const payload = JSON.parse(
+            Buffer.from(data.accessToken.split(".")[1]!, "base64").toString()
+          );
+          return {
+            id: String(payload.sub),
+            email: payload.email,
+            accessToken: data.accessToken,
+          };
         } catch (error) {
+          console.error("[NextAuth] authorize() exception:", error);
           return null;
         }
       },
@@ -40,12 +50,14 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.email = user.email;
+        token.accessToken = user.accessToken;
       }
       return token;
     },
     async session({ session, token }: any) {
       session.user.id = token.id;
       session.user.email = token.email;
+      session.accessToken = token.accessToken;
       return session;
     },
   },

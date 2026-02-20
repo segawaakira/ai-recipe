@@ -99,41 +99,6 @@
         ]
       }
     },
-    "/users/validate": {
-      "post": {
-        "operationId": "UsersController_validate",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ValidateUserDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "User validated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserResponseDto"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Invalid credentials"
-          }
-        },
-        "summary": "Validate user credentials",
-        "tags": [
-          "users"
-        ]
-      }
-    },
     "/ingredient-sets": {
       "post": {
         "operationId": "IngredientsController_createIngredientSet",
@@ -160,57 +125,19 @@
             }
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "summary": "Create a new ingredient set",
         "tags": [
           "ingredient-sets"
         ]
       },
-      "get": {
-        "operationId": "IngredientsController_getUserIngredientSets",
-        "parameters": [
-          {
-            "name": "userId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of ingredient sets",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/IngredientSetResponseDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "summary": "Get ingredient sets by user ID",
-        "tags": [
-          "ingredient-sets"
-        ]
-      }
-    },
-    "/ingredient-sets/{id}": {
       "patch": {
         "operationId": "IngredientsController_updateIngredientSet",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -233,7 +160,40 @@
             }
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "summary": "Update an ingredient set",
+        "tags": [
+          "ingredient-sets"
+        ]
+      },
+      "get": {
+        "operationId": "IngredientsController_getUserIngredientSets",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of ingredient sets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IngredientSetResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get ingredient sets by user ID",
         "tags": [
           "ingredient-sets"
         ]
@@ -265,6 +225,11 @@
             }
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "summary": "Save a recipe",
         "tags": [
           "recipes"
@@ -273,14 +238,6 @@
       "get": {
         "operationId": "RecipeController_findByUserId",
         "parameters": [
-          {
-            "name": "userId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "number"
-            }
-          },
           {
             "name": "page",
             "required": false,
@@ -306,11 +263,11 @@
             }
           },
           {
-            "name": "favoritesOnly",
+            "name": "ratingFilter",
             "required": false,
             "in": "query",
             "schema": {
-              "type": "boolean"
+              "type": "number"
             }
           }
         ],
@@ -326,15 +283,49 @@
             }
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "summary": "Get recipes by user ID",
         "tags": [
           "recipes"
         ]
       }
     },
-    "/recipes/{id}/favorite": {
-      "patch": {
-        "operationId": "RecipeController_toggleFavorite",
+    "/recipes/rated": {
+      "get": {
+        "operationId": "RecipeController_getRatedRecipes",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get rated recipes for prompt context",
+        "tags": [
+          "recipes"
+        ]
+      }
+    },
+    "/recipes/{id}": {
+      "get": {
+        "operationId": "RecipeController_findById",
         "parameters": [
           {
             "name": "id",
@@ -347,7 +338,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Favorite toggled",
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -357,13 +348,16 @@
             }
           }
         },
-        "summary": "Toggle recipe favorite status",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a recipe by ID",
         "tags": [
           "recipes"
         ]
-      }
-    },
-    "/recipes/{id}": {
+      },
       "delete": {
         "operationId": "RecipeController_delete",
         "parameters": [
@@ -388,9 +382,164 @@
             }
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "summary": "Delete a recipe",
         "tags": [
           "recipes"
+        ]
+      }
+    },
+    "/recipes/{id}/rating": {
+      "patch": {
+        "operationId": "RecipeController_updateRating",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRecipeRatingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rating updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecipeResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update recipe rating (1-5)",
+        "tags": [
+          "recipes"
+        ]
+      }
+    },
+    "/youtube/search": {
+      "get": {
+        "operationId": "YouTubeController_search",
+        "parameters": [
+          {
+            "name": "q",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of YouTube videos"
+          }
+        },
+        "summary": "Search YouTube videos",
+        "tags": [
+          "youtube"
+        ]
+      }
+    },
+    "/gemini/generate-recipe": {
+      "post": {
+        "operationId": "GeminiController_generateRecipe",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Recipe generated"
+          }
+        },
+        "summary": "Generate a recipe using Gemini AI",
+        "tags": [
+          "gemini"
+        ]
+      }
+    },
+    "/gemini/recognize-ingredients": {
+      "post": {
+        "operationId": "GeminiController_recognizeIngredients",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Ingredients recognized"
+          }
+        },
+        "summary": "Recognize ingredients from an image",
+        "tags": [
+          "gemini"
+        ]
+      }
+    },
+    "/gemini/validate-ingredients": {
+      "post": {
+        "operationId": "GeminiController_validateIngredients",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Ingredients validated"
+          }
+        },
+        "summary": "Validate ingredients using Gemini AI",
+        "tags": [
+          "gemini"
+        ]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        },
+        "summary": "Login and get JWT token",
+        "tags": [
+          "auth"
         ]
       }
     }
@@ -404,6 +553,13 @@
   "tags": [],
   "servers": [],
   "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
     "schemas": {
       "UserResponseDto": {
         "type": "object",
@@ -440,23 +596,6 @@
           "password"
         ]
       },
-      "ValidateUserDto": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string",
-            "example": "user@example.com"
-          },
-          "password": {
-            "type": "string",
-            "example": "password1"
-          }
-        },
-        "required": [
-          "email",
-          "password"
-        ]
-      },
       "DeleteUserDto": {
         "type": "object",
         "properties": {
@@ -472,10 +611,6 @@
       "CreateIngredientDto": {
         "type": "object",
         "properties": {
-          "userId": {
-            "type": "number",
-            "example": 1
-          },
           "ingredients": {
             "example": [
               "tomato",
@@ -489,7 +624,6 @@
           }
         },
         "required": [
-          "userId",
           "ingredients"
         ]
       },
@@ -550,10 +684,6 @@
       "CreateRecipeDto": {
         "type": "object",
         "properties": {
-          "userId": {
-            "type": "number",
-            "example": 1
-          },
           "name": {
             "type": "string",
             "example": "トマトパスタ"
@@ -577,6 +707,11 @@
             "type": "number",
             "example": 2
           },
+          "genre": {
+            "type": "string",
+            "example": "和食",
+            "nullable": true
+          },
           "youtubeVideos": {
             "type": "object",
             "example": [
@@ -591,7 +726,6 @@
           }
         },
         "required": [
-          "userId",
           "name",
           "content",
           "ingredients",
@@ -628,14 +762,21 @@
             "type": "number",
             "example": 2
           },
+          "genre": {
+            "type": "string",
+            "example": "和食",
+            "nullable": true
+          },
           "youtubeVideos": {
             "type": "object",
             "example": null,
             "nullable": true
           },
-          "isFavorite": {
-            "type": "boolean",
-            "example": false
+          "rating": {
+            "type": "number",
+            "example": null,
+            "nullable": true,
+            "description": "1-5の5段階評価、未評価はnull"
           },
           "createdAt": {
             "format": "date-time",
@@ -653,7 +794,6 @@
           "content",
           "ingredients",
           "servings",
-          "isFavorite",
           "createdAt",
           "userId"
         ]
@@ -675,6 +815,48 @@
         "required": [
           "items",
           "total"
+        ]
+      },
+      "UpdateRecipeRatingDto": {
+        "type": "object",
+        "properties": {
+          "rating": {
+            "type": "number",
+            "example": 4,
+            "description": "1-5の5段階評価"
+          }
+        },
+        "required": [
+          "rating"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "LoginResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        },
+        "required": [
+          "accessToken"
         ]
       }
     }

@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
+  total: number;
   perPage: number;
   onPageChange: (page: number) => void;
   onPerPageChange: (perPage: number) => void;
@@ -16,6 +17,7 @@ interface PaginationProps {
 export function Pagination({
   currentPage,
   totalPages,
+  total,
   perPage,
   onPageChange,
   onPerPageChange,
@@ -47,14 +49,13 @@ export function Pagination({
   }
 
   return (
-    <div className="flex items-center justify-between pt-4">
-      <div className="flex items-center gap-2">
-        {totalPages > 1 && (
-          <>
+    <div className="space-y-2">
+      <div className="flex items-center justify-between pt-4">
+        <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8"
+              className="h-8 w-8 cursor-pointer"
               disabled={currentPage === 1}
               onClick={() => onPageChange(currentPage - 1)}
             >
@@ -68,7 +69,7 @@ export function Pagination({
                   key={page}
                   variant={page === currentPage ? "default" : "outline"}
                   size="icon"
-                  className="h-8 w-8"
+                  className="h-8 w-8 cursor-pointer"
                   onClick={() => onPageChange(page)}
                 >
                   {page}
@@ -78,16 +79,20 @@ export function Pagination({
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8"
+              className="h-8 w-8 cursor-pointer"
               disabled={currentPage === totalPages}
               onClick={() => onPageChange(currentPage + 1)}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
-          </>
-        )}
+        </div>
       </div>
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1.5 justify-between">
+        <p className="text-xs text-gray-500">
+          {Math.min((currentPage - 1) * perPage + 1, total)}〜{Math.min(currentPage * perPage, total)} / {total}件
+        </p>
+        <div className="flex items-center gap-1.5">
+          <p className="text-xs text-gray-500">表示件数</p>
         <select
           value={perPage}
           onChange={(e) => onPerPageChange(Number(e.target.value))}
@@ -97,6 +102,7 @@ export function Pagination({
             <option key={n} value={n}>{n}件</option>
           ))}
         </select>
+        </div>
       </div>
     </div>
   );

@@ -3,13 +3,6 @@
 import { apiClient } from "@/lib/api-client";
 import { Button } from "@repo/ui/components/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@repo/ui/components/dialog";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -17,10 +10,12 @@ import {
   DropdownMenuTrigger,
 } from "@repo/ui/components/dropdown-menu";
 import { useToast } from "@repo/ui/hooks/use-toast";
-import { ChefHat, Clock, LogOut, User, UserX } from "lucide-react";
+import { Clock, LogOut, Menu, UserX } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { ConfirmDialog } from "./confirm-dialog";
 
 export function Header() {
   const { data: session } = useSession();
@@ -34,14 +29,6 @@ export function Header() {
   const handleDeleteAccount = async () => {
     if (!session?.user?.id) {
       toast.error("User session not found");
-      return;
-    }
-
-    const confirmed = window.confirm(
-      "本当にアカウントを削除しますか？この操作は取り消せません。"
-    );
-
-    if (!confirmed) {
       return;
     }
 
@@ -73,20 +60,21 @@ export function Header() {
     <div className="px-4 bg-white shadow-sm border-b">
       <header className="max-w-md mx-auto py-3 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2">
-            <ChefHat className="h-8 w-8 text-orange-600" />
-            <h1 className="text-xl font-bold text-gray-900">
+            <Image src="/logo.svg" alt="AI Recipe" width={28} height={28} />
+            <h1 className="text-lg font-bold text-gray-900">
               AIレシピ提案アプリ
             </h1>
           </Link>
 
           {session?.user?.id ? (
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild className="cursor-pointer">
                 <Button
                   variant="ghost"
-                  className="flex items-center gap-2 px-3"
+                  className="flex items-center"
+                  type="button"
                 >
-                  <User className="h-8 w-8 text-orange-600" />
+                  <Menu className="h-8 w-8 text-orange-600" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -94,19 +82,20 @@ export function Header() {
                   {session?.user?.email}
                 </p>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem asChild className="cursor-pointer">
                   <Link href="/history" className="flex items-center">
                     <Clock className="h-4 w-4 mr-2" />
                     レシピ提案履歴
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout}>
+                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                   <LogOut className="h-4 w-4 mr-2" />
                   ログアウト
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => setShowDeleteConfirm(true)}
+                  className="cursor-pointer"
                 >
                   <UserX className="h-4 w-4 mr-2" />
                   退会する
@@ -125,37 +114,13 @@ export function Header() {
           )}
       </header>
 
-      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-red-600">
-              アカウント削除の確認
-            </DialogTitle>
-            <DialogDescription>
-              本当にアカウントを削除しますか？この操作は取り消せません。
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="flex gap-2 justify-end">
-              <Button
-                variant="outline"
-                onClick={() => setShowDeleteConfirm(false)}
-              >
-                キャンセル
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={() => {
-                  handleDeleteAccount();
-                  setShowDeleteConfirm(false);
-                }}
-              >
-                削除する
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        title="アカウント削除の確認"
+        description="本当にアカウントを削除しますか？この操作は取り消せません。"
+        onConfirm={handleDeleteAccount}
+      />
     </div>
   );
 }

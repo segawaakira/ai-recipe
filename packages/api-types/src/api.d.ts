@@ -39,23 +39,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users/validate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Validate user credentials */
-        post: operations["UsersController_validate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/ingredient-sets": {
         parameters: {
             query?: never;
@@ -68,22 +51,6 @@ export interface paths {
         put?: never;
         /** Create a new ingredient set */
         post: operations["IngredientsController_createIngredientSet"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ingredient-sets/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -126,6 +93,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/recipes/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a recipe by ID */
+        get: operations["RecipeController_findById"];
+        put?: never;
+        post?: never;
+        /** Delete a recipe */
+        delete: operations["RecipeController_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/recipes/{id}/rating": {
         parameters: {
             query?: never;
@@ -143,19 +128,86 @@ export interface paths {
         patch: operations["RecipeController_updateRating"];
         trace?: never;
     };
-    "/recipes/{id}": {
+    "/youtube/search": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get a recipe by ID */
-        get: operations["RecipeController_findById"];
+        /** Search YouTube videos */
+        get: operations["YouTubeController_search"];
         put?: never;
         post?: never;
-        /** Delete a recipe */
-        delete: operations["RecipeController_delete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gemini/generate-recipe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate a recipe using Gemini AI */
+        post: operations["GeminiController_generateRecipe"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gemini/recognize-ingredients": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Recognize ingredients from an image */
+        post: operations["GeminiController_recognizeIngredients"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gemini/validate-ingredients": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Validate ingredients using Gemini AI */
+        post: operations["GeminiController_validateIngredients"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Login and get JWT token */
+        post: operations["AuthController_login"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -177,19 +229,11 @@ export interface components {
             /** @example password1 */
             password: string;
         };
-        ValidateUserDto: {
-            /** @example user@example.com */
-            email: string;
-            /** @example password1 */
-            password: string;
-        };
         DeleteUserDto: {
             /** @example 1 */
             id: number;
         };
         CreateIngredientDto: {
-            /** @example 1 */
-            userId: number;
             /**
              * @example [
              *       "tomato",
@@ -229,8 +273,6 @@ export interface components {
             ingredients: string[];
         };
         CreateRecipeDto: {
-            /** @example 1 */
-            userId: number;
             /** @example トマトパスタ */
             name: string;
             /**
@@ -286,7 +328,10 @@ export interface components {
             genre?: string | null;
             /** @example null */
             youtubeVideos?: Record<string, never> | null;
-            /** @example null */
+            /**
+             * @description 1-5の5段階評価、未評価はnull
+             * @example null
+             */
             rating?: number | null;
             /**
              * Format: date-time
@@ -300,6 +345,23 @@ export interface components {
             items: components["schemas"]["RecipeResponseDto"][];
             /** @example 10 */
             total: number;
+        };
+        UpdateRecipeRatingDto: {
+            /**
+             * @description 1-5の5段階評価
+             * @example 4
+             */
+            rating: number;
+        };
+        LoginDto: {
+            /** @example user@example.com */
+            email: string;
+            /** @example password123 */
+            password: string;
+        };
+        LoginResponseDto: {
+            /** @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... */
+            accessToken: string;
         };
     };
     responses: never;
@@ -407,42 +469,9 @@ export interface operations {
             };
         };
     };
-    UsersController_validate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ValidateUserDto"];
-            };
-        };
-        responses: {
-            /** @description User validated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserResponseDto"];
-                };
-            };
-            /** @description Invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
     IngredientsController_getUserIngredientSets: {
         parameters: {
-            query: {
-                userId: number;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -488,9 +517,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                id: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
@@ -512,8 +539,7 @@ export interface operations {
     };
     RecipeController_findByUserId: {
         parameters: {
-            query: {
-                userId: number;
+            query?: {
                 page?: number;
                 perPage?: number;
                 search?: string;
@@ -562,8 +588,7 @@ export interface operations {
     };
     RecipeController_getRatedRecipes: {
         parameters: {
-            query: {
-                userId: number;
+            query?: {
                 limit?: number;
             };
             header?: never;
@@ -576,12 +601,7 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": {
-                        name: string;
-                        rating: number;
-                    }[];
-                };
+                content?: never;
             };
         };
     };
@@ -596,35 +616,6 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Recipe found */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RecipeResponseDto"];
-                };
-            };
-        };
-    };
-    RecipeController_updateRating: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    rating: number;
-                };
-            };
-        };
-        responses: {
-            /** @description Rating updated */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -654,6 +645,137 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["RecipeResponseDto"];
                 };
+            };
+        };
+    };
+    RecipeController_updateRating: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRecipeRatingDto"];
+            };
+        };
+        responses: {
+            /** @description Rating updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecipeResponseDto"];
+                };
+            };
+        };
+    };
+    YouTubeController_search: {
+        parameters: {
+            query: {
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of YouTube videos */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GeminiController_generateRecipe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Recipe generated */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GeminiController_recognizeIngredients: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Ingredients recognized */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GeminiController_validateIngredients: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Ingredients validated */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AuthController_login: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginDto"];
+            };
+        };
+        responses: {
+            /** @description Login successful */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoginResponseDto"];
+                };
+            };
+            /** @description Invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

@@ -7,9 +7,10 @@ import { IngredientsModule } from './ingredient-set/ingredient-set.module';
 import { RecipeModule } from './recipe/recipe.module';
 import { YouTubeModule } from './youtube/youtube.module';
 import { GeminiModule } from './gemini/gemini.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [PrismaModule, UsersModule, IngredientsModule, RecipeModule, YouTubeModule, GeminiModule],
+  imports: [PrismaModule, UsersModule, IngredientsModule, RecipeModule, YouTubeModule, GeminiModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })

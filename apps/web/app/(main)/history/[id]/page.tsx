@@ -7,16 +7,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
-import { ArrowLeft, ChefHat, Clock, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowLeft, Clock, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
-import { apiClient } from "@/lib/api-client";
+import { createAuthClient } from "@/lib/auth-api-client";
 import { useToast } from "@repo/ui/hooks/use-toast";
 import { ConfirmDialog } from "components/confirm-dialog";
 import { RecipeMeta } from "components/recipe-meta";
 import { StarRating } from "components/star-rating";
 import { YouTubeVideos } from "components/youtube-videos";
+import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 
 interface Recipe {
@@ -32,6 +33,7 @@ interface Recipe {
 }
 
 export default function RecipeDetailPage() {
+  const { data: session } = useSession();
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
@@ -40,11 +42,17 @@ export default function RecipeDetailPage() {
   const [notFound, setNotFound] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
+  const authClient = useMemo(
+    () => session?.accessToken ? createAuthClient(session.accessToken) : null,
+    [session?.accessToken]
+  );
+
   useEffect(() => {
     const fetchRecipe = async () => {
+      if (!authClient) return;
       setIsLoading(true);
       try {
-        const { data, error } = await apiClient.GET("/recipes/{id}", {
+        const { data, error } = await authClient.GET("/recipes/{id}", {
           params: { path: { id: String(params.id) } },
         });
         if (error || !data) {
@@ -59,7 +67,7 @@ export default function RecipeDetailPage() {
       }
     };
     if (params.id) fetchRecipe();
-  }, [params.id]);
+  }, [params.id, authClient]);
 
   return (
     <div className="space-y-4">
@@ -80,7 +88,6 @@ export default function RecipeDetailPage() {
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center py-12 text-gray-500">
-                  <ChefHat className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                   <p>レシピが見つかりません</p>
                 </div>
               </CardContent>
@@ -88,9 +95,8 @@ export default function RecipeDetailPage() {
           ) : (
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ChefHat className="h-5 w-5 text-orange-600" />
-                  {recipe.name}
+                <CardTitle>
+                  <h1 className="leading-normal text-lg">{recipe.name}</h1>
                 </CardTitle>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -101,10 +107,12 @@ export default function RecipeDetailPage() {
                     rating={recipe.rating}
                     onRate={async (rating) => {
                       try {
-                        await apiClient.PATCH("/recipes/{id}/rating", {
-                          params: { path: { id: String(recipe.id) } },
-                          body: { rating },
-                        });
+                        if (authClient) {
+                          await authClient.PATCH("/recipes/{id}/rating", {
+                            params: { path: { id: String(recipe.id) } },
+                            body: { rating },
+                          });
+                        }
                         setRecipe((prev) => prev ? { ...prev, rating } : prev);
                         toast.success("評価を記録しました");
                       } catch {
@@ -113,14 +121,13 @@ export default function RecipeDetailPage() {
                     }}
                   />
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
                 <RecipeMeta
                   ingredients={recipe.ingredients}
-                  servings={recipe.servings}
                   genre={recipe.genre}
                 />
 
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="markdown-content">
                   <ReactMarkdown>{recipe.content}</ReactMarkdown>
                 </div>
@@ -133,7 +140,7 @@ export default function RecipeDetailPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="text-red-500 hover:bg-red-50 hover:text-red-600"
+                    className="text-red-500 hover:bg-red-50 hover:text-red-600 cursor-pointer"
                     onClick={() => setShowDeleteDialog(true)}
                   >
                     <Trash2 className="h-4 w-4 mr-1.5" />
@@ -151,9 +158,11 @@ export default function RecipeDetailPage() {
           description={`本当に「${recipe.name}」を削除しますか？`}
           onConfirm={async () => {
             try {
-              await apiClient.DELETE("/recipes/{id}", {
-                params: { path: { id: String(recipe.id) } },
-              });
+              if (authClient) {
+                await authClient.DELETE("/recipes/{id}", {
+                  params: { path: { id: String(recipe.id) } },
+                });
+              }
               router.back();
             } catch {
               console.error("Failed to delete recipe");

@@ -8,7 +8,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "test": "turbo run test",
     "check-types": "turbo run check-types",
-    "generate:api": "pnpm --filter api generate:openapi && pnpm --filter web generate:api-types"
+    "generate:api": "pnpm --filter api generate:openapi && pnpm --filter @repo/api-types generate"
   },
   "devDependencies": {
     "prettier": "^3.5.3",

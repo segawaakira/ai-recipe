@@ -1,47 +1,35 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
-import { apiClient } from "@/lib/api-client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CreateUserInput, type CreateUserInputType } from "@repo/api-schema";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { useToast } from "@repo/ui/hooks/use-toast";
 import { PasswordInput } from "components/password-input";
+import { useForm } from "react-hook-form";
+
+import { apiClient } from "@/lib/api-client";
 
 export default function SignUp() {
   const { toast } = useToast();
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<CreateUserInputType>({
+    resolver: zodResolver(CreateUserInput),
+  });
 
-    if (!email || !password) {
-      toast.error("Please fill in all fields");
-      return;
-    }
-
-    // パスワードのバリデーション
-    if (password.length < 8) {
-      toast.error("Password must be at least 8 characters long");
-      return;
-    }
-
-    if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(password)) {
-      toast.error("Password must contain both letters and numbers");
-      return;
-    }
-
-    setIsLoading(true);
-
+  const onSubmit = async (data: CreateUserInputType) => {
     try {
-      const { data, error } = await apiClient.POST("/users", {
+      const { error } = await apiClient.POST("/users", {
         body: {
-          email: email,
-          password: password,
+          email: data.email,
+          password: data.password,
         },
       });
 
@@ -51,14 +39,10 @@ export default function SignUp() {
       }
 
       toast.success("User created successfully");
-
-      // 成功したらログインページにリダイレクト
       router.push("/auth/signin");
     } catch (error) {
       console.error("Signup error:", error);
       toast.error("Network error occurred");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -70,28 +54,34 @@ export default function SignUp() {
             新規登録
           </h2>
         </div>
-        <form onSubmit={handleSignup} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
-            <Input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="メールアドレス"
-              type="email"
-              required
-            />
-            <PasswordInput
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="パスワード"
-              required
-            />
+            <div>
+              <Input
+                {...register("email")}
+                placeholder="メールアドレス"
+                type="email"
+              />
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+              )}
+            </div>
+            <div>
+              <PasswordInput
+                {...register("password")}
+                placeholder="パスワード"
+              />
+              {errors.password && (
+                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+              )}
+            </div>
           </div>
-          <Button type="submit" disabled={isLoading} className="w-full bg-orange-600 hover:bg-orange-700">
-            {isLoading ? "登録中..." : "会員登録"}
+          <Button type="submit" disabled={isSubmitting} className="w-full bg-orange-600 hover:bg-orange-700 cursor-pointer">
+            {isSubmitting ? "登録中..." : "会員登録"}
           </Button>
           <p className="text-center text-sm text-gray-500">
             アカウントをお持ちの方は
-            <a href="/auth/signin" className="text-orange-600 hover:text-orange-700 font-medium ml-1">
+            <a href="/auth/signin" className="text-orange-600 hover:text-orange-700 font-medium ml-1 cursor-pointer">
               ログイン
             </a>
           </p>

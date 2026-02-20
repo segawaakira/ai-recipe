@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@repo/ui/components/card";
 import { Separator } from "@repo/ui/components/separator";
-import { ChefHat } from "lucide-react";
+import { ChefHat, CookingPot } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
 import { RecipeMeta } from "components/recipe-meta";
@@ -29,7 +29,6 @@ interface RecipeDisplaySectionProps {
   savedRecipeId: number | null;
   recipeRating: number | null;
   recipeIngredients: string[];
-  recipeServings: number;
   recipeGenre: string;
   onRate: (rating: number) => Promise<void>;
 }
@@ -41,7 +40,6 @@ export function RecipeDisplaySection({
   savedRecipeId,
   recipeRating,
   recipeIngredients,
-  recipeServings,
   recipeGenre,
   onRate,
 }: RecipeDisplaySectionProps) {
@@ -49,24 +47,25 @@ export function RecipeDisplaySection({
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <ChefHat className="h-5 w-5" />
+          <CookingPot className="h-5 w-5" />
           おすすめレシピ
         </CardTitle>
         <CardDescription>
           AIが提案するレシピが表示されます
         </CardDescription>
         {recipeName && (
+          <>
           <p className="text-lg font-semibold mt-1">{recipeName}</p>
+            <RecipeMeta
+              ingredients={recipeIngredients}
+              genre={recipeGenre}
+            />
+            </>
         )}
       </CardHeader>
       <CardContent>
         {recipe ? (
           <div className="space-y-4">
-            <RecipeMeta
-              ingredients={recipeIngredients}
-              servings={recipeServings}
-              genre={recipeGenre}
-            />
             <div className="markdown-content">
               <ReactMarkdown>{recipe}</ReactMarkdown>
             </div>

@@ -1,23 +1,26 @@
 "use client";
 
 import { Button } from "@repo/ui/components/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import { useSession, signOut } from "next-auth/react";
-import { apiClient } from "@/lib/api-client";
+import { createAuthClient } from "@/lib/auth-api-client";
 
 const HelloWorld = () => {
   const { data: session } = useSession();
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [recipe, setRecipe] = useState<string>("");
 
+  const authClient = useMemo(
+    () => session?.accessToken ? createAuthClient(session.accessToken) : null,
+    [session?.accessToken]
+  );
+
   useEffect(() => {
-    if (!session?.user?.id) return;
+    if (!authClient) return;
     const fetchIngredients = async () => {
       try {
-        const { data } = await apiClient.GET("/ingredient-sets", {
-          params: { query: { userId: Number(session?.user?.id) } },
-        });
+        const { data } = await authClient.GET("/ingredient-sets");
         if (data && data.length > 0 && data[0]) {
           setIngredients(data[0].ingredients);
         }
@@ -27,7 +30,7 @@ const HelloWorld = () => {
     };
 
     fetchIngredients();
-  }, [session?.user?.id]);
+  }, [authClient]);
 
   const handleSubmit = async () => {
     const response = await fetch("/api/gemini", {
@@ -43,9 +46,9 @@ const HelloWorld = () => {
   };
 
   const handleCreate = async () => {
-    const { data } = await apiClient.POST("/ingredient-sets", {
+    if (!authClient) return;
+    const { data } = await authClient.POST("/ingredient-sets", {
       body: {
-        userId: Number(session?.user?.id),
         ingredients: ingredients,
       },
     });
@@ -53,8 +56,8 @@ const HelloWorld = () => {
   };
 
   const handleUpdate = async () => {
-    const { data } = await apiClient.PATCH("/ingredient-sets/{id}", {
-      params: { path: { id: String(session?.user?.id) } },
+    if (!authClient) return;
+    const { data } = await authClient.PATCH("/ingredient-sets", {
       body: {
         ingredients: ingredients,
       },
