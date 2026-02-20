@@ -6,11 +6,12 @@
   "types": "src/index.ts",
   "scripts": {
     "generate": "openapi-typescript ../../apps/api/openapi.json -o ./src/api.d.ts",
-    "build": "tsc --build",
+    "build": "tsc --noEmit",
     "check-types": "tsc --noEmit"
   },
   "dependencies": {},
   "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
     "openapi-typescript": "7.13.0",
     "typescript": "5.8.3"
   }
