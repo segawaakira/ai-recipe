@@ -1,7 +1,8 @@
-import { ExpoConfig, ConfigContext } from "expo/config";
+import { ConfigContext, ExpoConfig } from "expo/config";
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
+  owner: "segawaakira",
   name: "AI Recipe",
   slug: "ai-recipe",
   version: "1.0.0",
@@ -32,5 +33,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   plugins: ["expo-router", "expo-secure-store", "expo-web-browser"],
   extra: {
     apiUrl: process.env.EXPO_PUBLIC_API_URL || "http://localhost:3001",
+    eas: {
+      projectId: process.env.EXPO_PUBLIC_EAS_PROJECT_ID || "",
+    },
   },
 });
