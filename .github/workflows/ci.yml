@@ -22,6 +22,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Build shared packages
+        run: pnpm --filter @repo/api-schema build
+
       - name: Unit Test
         run: pnpm --filter web test
 
