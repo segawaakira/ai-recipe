@@ -14,6 +14,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { z } from 'zod';
+import { Public } from '../auth/public.decorator';
 
 const CreateUserInput = z.object({
   email: z.string().email(),
@@ -40,6 +41,7 @@ export class UsersController {
     return this.usersService.listUsers();
   }
 
+  @Public()
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({ status: 201, description: 'User created', type: UserResponseDto })

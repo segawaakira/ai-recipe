@@ -8,7 +8,6 @@ import {
   Query,
   Param,
   NotFoundException,
-  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { RecipeService } from './recipe.service';
@@ -16,12 +15,10 @@ import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeRatingDto } from './dto/update-recipe-rating.dto';
 import { PaginatedRecipeResponseDto } from './dto/paginated-recipe-response.dto';
 import { RecipeResponseDto } from './dto/recipe-response.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 
 @ApiTags('recipes')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
 @Controller('recipes')
 export class RecipeController {
   constructor(private readonly recipeService: RecipeService) {}
