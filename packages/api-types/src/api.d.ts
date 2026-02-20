@@ -353,6 +353,25 @@ export interface components {
              */
             rating: number;
         };
+        RatedRecipeDto: {
+            name: string;
+            rating: number;
+        };
+        GenerateRecipeDto: {
+            preferredIngredients?: string[];
+            allIngredients?: string[];
+            ingredients?: string[];
+            servings?: number;
+            genre?: string;
+            ratedRecipes?: components["schemas"]["RatedRecipeDto"][];
+        };
+        RecognizeIngredientsDto: {
+            image: string;
+        };
+        ValidateIngredientsDto: {
+            newIngredients: string[];
+            existingIngredients: string[];
+        };
         LoginDto: {
             /** @example user@example.com */
             email: string;
@@ -701,7 +720,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GenerateRecipeDto"];
+            };
+        };
         responses: {
             /** @description Recipe generated */
             201: {
@@ -719,7 +742,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecognizeIngredientsDto"];
+            };
+        };
         responses: {
             /** @description Ingredients recognized */
             201: {
@@ -737,7 +764,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ValidateIngredientsDto"];
+            };
+        };
         responses: {
             /** @description Ingredients validated */
             201: {

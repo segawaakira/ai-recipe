@@ -9,8 +9,11 @@ import { AlertCircle, Camera, Check, Loader2, Upload, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Separator } from "@repo/ui/components/separator";
+import type { createAuthClient } from "@/lib/auth-api-client";
+
 interface ImageUploadAreaProps {
   onIngredientsRecognized: (ingredients: string[]) => void;
+  authClient?: ReturnType<typeof createAuthClient> | null;
 }
 
 function resizeImage(file: File, maxWidth: number = 1024): Promise<string> {
@@ -41,6 +44,7 @@ function resizeImage(file: File, maxWidth: number = 1024): Promise<string> {
 
 export function ImageUploadArea({
   onIngredientsRecognized,
+  authClient,
 }: ImageUploadAreaProps) {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -190,21 +194,23 @@ export function ImageUploadArea({
     setError(null);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/gemini/recognize-ingredients`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: base64Image }),
+      if (!authClient) {
+        setError("ログインが必要です");
+        return;
+      }
+
+      const { data, error: apiError } = await authClient.POST("/gemini/recognize-ingredients", {
+        body: { image: base64Image },
       });
 
-      if (!response.ok) {
+      if (apiError || !data) {
         throw new Error("API request failed");
       }
 
-      const data = await response.json();
-
-      if (data.ingredients && data.ingredients.length > 0) {
-        setRecognizedIngredients(data.ingredients);
-        setSelectedIngredients(data.ingredients);
+      if ((data as { ingredients?: string[] }).ingredients && (data as { ingredients: string[] }).ingredients.length > 0) {
+        const ingredients = (data as { ingredients: string[] }).ingredients;
+        setRecognizedIngredients(ingredients);
+        setSelectedIngredients(ingredients);
       } else {
         setError("食材を認識できませんでした。別の画像をお試しください。");
       }

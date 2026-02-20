@@ -2,7 +2,6 @@ import { useState, useMemo, useCallback } from "react";
 import { ScrollView, Alert } from "react-native";
 import { useAuth } from "@/contexts/AuthContext";
 import { createAuthClient } from "@/lib/auth-api-client";
-import { API_URL } from "@/lib/api-client";
 import { IngredientSection } from "@/components/IngredientSection";
 import { RecipeDisplaySection } from "@/components/RecipeDisplaySection";
 
@@ -60,33 +59,34 @@ export default function HomeScreen() {
           } catch {}
         }
 
-        const response = await fetch(`${API_URL}/gemini/generate-recipe`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+        if (!authClient) return;
+
+        const { data, error: geminiError } = await authClient.POST("/gemini/generate-recipe", {
+          body: {
             preferredIngredients: params.selectedIngredients,
             allIngredients: params.allIngredients,
             servings: params.servings,
             genre: params.genre || undefined,
             ratedRecipes: ratedRecipes.length > 0 ? ratedRecipes : undefined,
-          }),
+          },
         });
 
-        const data = await response.json();
-        setRecipe(data.recipe);
+        if (geminiError || !data) throw new Error("レシピ生成に失敗しました");
+        const recipeData = data as unknown as { recipe: string; recipeName: string };
+        setRecipe(recipeData.recipe);
 
-        if (data.recipeName) {
-          setRecipeName(data.recipeName);
+        if (recipeData.recipeName) {
+          setRecipeName(recipeData.recipeName);
 
           let savedVideos: YouTubeVideo[] = [];
           try {
-            const ytRes = await fetch(
-              `${API_URL}/youtube/search?q=${encodeURIComponent(data.recipeName)}`
-            );
-            const ytData = await ytRes.json();
-            if (ytData.videos) {
-              savedVideos = ytData.videos;
-              setYoutubeVideos(ytData.videos);
+            const { data: ytData } = await authClient.GET("/youtube/search", {
+              params: { query: { q: recipeData.recipeName } },
+            });
+            const ytResult = ytData as unknown as { videos?: YouTubeVideo[] };
+            if (ytResult?.videos) {
+              savedVideos = ytResult.videos;
+              setYoutubeVideos(ytResult.videos);
             }
           } catch {}
 
@@ -94,8 +94,8 @@ export default function HomeScreen() {
             try {
               const { data: savedRecipe } = await authClient.POST("/recipes", {
                 body: {
-                  name: data.recipeName,
-                  content: data.recipe,
+                  name: recipeData.recipeName,
+                  content: recipeData.recipe,
                   ingredients: params.selectedIngredients,
                   servings: params.servings,
                   genre: params.genre || undefined,

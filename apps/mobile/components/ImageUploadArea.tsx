@@ -8,14 +8,16 @@ import {
   Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { API_URL } from "@/lib/api-client";
+import { createAuthClient } from "@/lib/auth-api-client";
 import { Ionicons } from "@expo/vector-icons";
 
 interface ImageUploadAreaProps {
   onIngredientsRecognized: (ingredients: string[]) => void;
+  token: string;
 }
 
-export function ImageUploadArea({ onIngredientsRecognized }: ImageUploadAreaProps) {
+export function ImageUploadArea({ onIngredientsRecognized, token }: ImageUploadAreaProps) {
+  const authClient = createAuthClient(token);
   const [image, setImage] = useState<string | null>(null);
   const [isRecognizing, setIsRecognizing] = useState(false);
 
@@ -65,14 +67,13 @@ export function ImageUploadArea({ onIngredientsRecognized }: ImageUploadAreaProp
   const recognizeIngredients = async (base64: string) => {
     setIsRecognizing(true);
     try {
-      const res = await fetch(`${API_URL}/gemini/recognize-ingredients`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: base64 }),
+      const { data, error: apiError } = await authClient.POST("/gemini/recognize-ingredients", {
+        body: { image: base64 },
       });
-      const data = await res.json();
-      if (data.ingredients && data.ingredients.length > 0) {
-        onIngredientsRecognized(data.ingredients);
+      if (apiError || !data) throw new Error("認識に失敗しました");
+      const ingredients = (data as { ingredients: string[] }).ingredients;
+      if (ingredients && ingredients.length > 0) {
+        onIngredientsRecognized(ingredients);
       } else {
         Alert.alert("認識結果", "食材を認識できませんでした");
       }

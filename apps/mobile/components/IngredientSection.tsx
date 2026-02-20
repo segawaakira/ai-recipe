@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { createAuthClient } from "@/lib/auth-api-client";
-import { API_URL } from "@/lib/api-client";
 import { ImageUploadArea } from "./ImageUploadArea";
 import { showConfirmDialog } from "./ConfirmDialog";
 
@@ -111,21 +110,19 @@ export function IngredientSection({
 
       setIsValidating(true);
       try {
-        const res = await fetch(`${API_URL}/gemini/validate-ingredients`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+        const { data, error: valError } = await authClient.POST("/gemini/validate-ingredients", {
+          body: {
             newIngredients: unique,
             existingIngredients: ingredients,
-          }),
+          },
         });
-        const data = await res.json();
+        if (valError || !data) throw new Error("バリデーションに失敗しました");
         const results: Array<{
           name: string;
           isFood: boolean;
           similarTo?: string;
           isDuplicate?: boolean;
-        }> = data.results || [];
+        }> = (data as { results: Array<{ name: string; isFood: boolean; similarTo?: string; isDuplicate?: boolean }> }).results || [];
 
         const hasProblems = results.some(
           (r) => !r.isFood || r.similarTo || r.isDuplicate
@@ -325,6 +322,7 @@ export function IngredientSection({
       ) : (
         <View style={{ marginBottom: 16 }}>
           <ImageUploadArea
+            token={token}
             onIngredientsRecognized={(newIngredients) => {
               if (newIngredients.length > 0) {
                 validateAndAddIngredients(newIngredients);
