@@ -1,8 +1,9 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiQuery, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { YouTubeService } from './youtube.service';
 
 @ApiTags('youtube')
+@ApiBearerAuth()
 @Controller('youtube')
 export class YouTubeController {
   constructor(private readonly youtubeService: YouTubeService) {}

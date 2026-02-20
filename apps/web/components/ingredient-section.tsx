@@ -165,19 +165,19 @@ export function IngredientSection({
 
     setIsValidating(true);
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/gemini/validate-ingredients`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            newIngredients: unique,
-            existingIngredients: ingredients,
-          }),
-        }
-      );
-      const data = await res.json();
-      const results: ValidationResult[] = data.results || [];
+      if (!authClient) {
+        setIngredients((prev) => [...prev, ...unique]);
+        toast.success(`${unique.length}個の食材を追加しました`);
+        return;
+      }
+      const { data, error: valError } = await authClient.POST("/gemini/validate-ingredients", {
+        body: {
+          newIngredients: unique,
+          existingIngredients: ingredients,
+        },
+      });
+      if (valError || !data) throw new Error("バリデーションに失敗しました");
+      const results: ValidationResult[] = (data as { results: ValidationResult[] }).results || [];
 
       const hasProblems = results.some(
         (r) => !r.isFood || r.similarTo || r.isDuplicate
@@ -272,6 +272,7 @@ export function IngredientSection({
             </TabsContent>
             <TabsContent value="camera">
               <ImageUploadArea
+                authClient={authClient}
                 onIngredientsRecognized={(newIngredients) => {
                   if (newIngredients.length > 0) {
                     validateAndAddIngredients(newIngredients);

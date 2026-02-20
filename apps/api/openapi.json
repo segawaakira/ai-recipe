@@ -457,6 +457,11 @@
             "description": "List of YouTube videos"
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "summary": "Search YouTube videos",
         "tags": [
           "youtube"
@@ -467,11 +472,26 @@
       "post": {
         "operationId": "GeminiController_generateRecipe",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateRecipeDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "Recipe generated"
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "summary": "Generate a recipe using Gemini AI",
         "tags": [
           "gemini"
@@ -482,11 +502,26 @@
       "post": {
         "operationId": "GeminiController_recognizeIngredients",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecognizeIngredientsDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "Ingredients recognized"
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "summary": "Recognize ingredients from an image",
         "tags": [
           "gemini"
@@ -497,11 +532,26 @@
       "post": {
         "operationId": "GeminiController_validateIngredients",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateIngredientsDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "Ingredients validated"
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "summary": "Validate ingredients using Gemini AI",
         "tags": [
           "gemini"
@@ -828,6 +878,88 @@
         },
         "required": [
           "rating"
+        ]
+      },
+      "RatedRecipeDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "name",
+          "rating"
+        ]
+      },
+      "GenerateRecipeDto": {
+        "type": "object",
+        "properties": {
+          "preferredIngredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "allIngredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "servings": {
+            "type": "number"
+          },
+          "genre": {
+            "type": "string"
+          },
+          "ratedRecipes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RatedRecipeDto"
+            }
+          }
+        }
+      },
+      "RecognizeIngredientsDto": {
+        "type": "object",
+        "properties": {
+          "image": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "image"
+        ]
+      },
+      "ValidateIngredientsDto": {
+        "type": "object",
+        "properties": {
+          "newIngredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "existingIngredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "newIngredients",
+          "existingIngredients"
         ]
       },
       "LoginDto": {
