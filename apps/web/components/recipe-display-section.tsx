@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@repo/ui/components/card";
 import { Separator } from "@repo/ui/components/separator";
-import { ChefHat } from "lucide-react";
+import { ChefHat, CookingPot } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
 import { RecipeMeta } from "components/recipe-meta";
@@ -47,7 +47,7 @@ export function RecipeDisplaySection({
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <ChefHat className="h-5 w-5" />
+          <CookingPot className="h-5 w-5" />
           おすすめレシピ
         </CardTitle>
         <CardDescription>
