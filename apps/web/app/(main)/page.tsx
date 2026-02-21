@@ -144,6 +144,7 @@ export default function RecipeApp() {
               recipeRating={recipeRating}
               recipeIngredients={recipeIngredients}
               recipeGenre={recipeGenre}
+              isGenerating={isGenerating}
               onRate={async (rating) => {
                 setRecipeRating(rating);
                 try {
