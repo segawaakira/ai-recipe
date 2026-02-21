@@ -21,7 +21,7 @@ export function StarRating({ rating, onRate, disabled }: StarRatingProps) {
             key={star}
             type="button"
             disabled={disabled}
-            className="p-0.5 transition-colors disabled:cursor-default"
+            className="p-0.5 transition-colors disabled:cursor-default cursor-pointer"
             onMouseEnter={() => !disabled && setHovered(star)}
             onMouseLeave={() => setHovered(0)}
             onClick={() => onRate(star)}

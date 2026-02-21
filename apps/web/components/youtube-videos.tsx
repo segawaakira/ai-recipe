@@ -48,7 +48,7 @@ export function YouTubeVideos({ videos, recipeName }: YouTubeVideosProps) {
                   playingVideoId === video.videoId ? null : video.videoId
                 )
               }
-              className={`flex gap-3 w-full rounded-lg p-2 text-left transition-colors ${
+              className={`flex gap-3 w-full rounded-lg p-2 text-left transition-colors cursor-pointer ${
                 playingVideoId === video.videoId
                   ? "bg-red-50 ring-2 ring-red-300"
                   : "hover:bg-gray-50"
