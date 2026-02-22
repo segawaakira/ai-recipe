@@ -4,9 +4,11 @@ import { useMemo, useState } from "react";
 
 import { createAuthClient } from "@/lib/auth-api-client";
 import { useToast } from "@repo/ui/hooks/use-toast";
+import { ArrowRight } from "lucide-react";
 import { IngredientSection } from "components/ingredient-section";
 import { RecipeDisplaySection } from "components/recipe-display-section";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 interface YouTubeVideo {
   videoId: string;
@@ -162,6 +164,10 @@ export default function RecipeApp() {
             />
           )}
         </div>
+        <Link href="/history" className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 font-medium w-fit">
+          レシピ提案履歴へ
+          <ArrowRight className="h-4 w-4" />
+        </Link>
       </div>
     </>
   );
