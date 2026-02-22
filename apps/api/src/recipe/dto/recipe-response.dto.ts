@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { YouTubeVideoDto } from '../../youtube/dto/youtube-search-response.dto';
 
 export class RecipeResponseDto {
   @ApiProperty({ example: 1 })
@@ -19,8 +20,8 @@ export class RecipeResponseDto {
   @ApiProperty({ example: '和食', required: false, nullable: true })
   genre: string | null;
 
-  @ApiProperty({ example: null, required: false, nullable: true })
-  youtubeVideos: unknown;
+  @ApiProperty({ type: [YouTubeVideoDto], required: false, nullable: true })
+  youtubeVideos: YouTubeVideoDto[] | null;
 
   @ApiProperty({ example: null, required: false, nullable: true, description: '1-5の5段階評価、未評価はnull' })
   rating: number | null;
@@ -30,4 +31,12 @@ export class RecipeResponseDto {
 
   @ApiProperty({ example: 1 })
   userId: number;
+}
+
+export class RatedRecipeResponseDto {
+  @ApiProperty({ example: 'トマトパスタ' })
+  name: string;
+
+  @ApiProperty({ example: 4, nullable: true })
+  rating: number | null;
 }

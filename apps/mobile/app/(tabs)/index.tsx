@@ -4,13 +4,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { createAuthClient } from "@/lib/auth-api-client";
 import { IngredientSection } from "@/components/IngredientSection";
 import { RecipeDisplaySection } from "@/components/RecipeDisplaySection";
+import type { components } from "@repo/api-types";
 
-interface YouTubeVideo {
-  videoId: string;
-  title: string;
-  channelTitle: string;
-  thumbnail: string;
-}
+type YouTubeVideo = components["schemas"]["YouTubeVideoDto"];
 
 export default function HomeScreen() {
   const { token } = useAuth();
@@ -54,7 +50,7 @@ export default function HomeScreen() {
           try {
             const { data } = await authClient.GET("/recipes/rated");
             if (data) {
-              ratedRecipes = data as { name: string; rating: number }[];
+              ratedRecipes = data.flatMap((r) => r.rating != null ? [{ name: r.name, rating: r.rating }] : []);
             }
           } catch {}
         }
@@ -72,21 +68,19 @@ export default function HomeScreen() {
         });
 
         if (geminiError || !data) throw new Error("レシピ生成に失敗しました");
-        const recipeData = data as unknown as { recipe: string; recipeName: string };
-        setRecipe(recipeData.recipe);
+        setRecipe(data.recipe);
 
-        if (recipeData.recipeName) {
-          setRecipeName(recipeData.recipeName);
+        if (data.recipeName) {
+          setRecipeName(data.recipeName);
 
           let savedVideos: YouTubeVideo[] = [];
           try {
             const { data: ytData } = await authClient.GET("/youtube/search", {
-              params: { query: { q: recipeData.recipeName } },
+              params: { query: { q: data.recipeName } },
             });
-            const ytResult = ytData as unknown as { videos?: YouTubeVideo[] };
-            if (ytResult?.videos) {
-              savedVideos = ytResult.videos;
-              setYoutubeVideos(ytResult.videos);
+            if (ytData?.videos) {
+              savedVideos = ytData.videos;
+              setYoutubeVideos(ytData.videos);
             }
           } catch {}
 
@@ -94,14 +88,14 @@ export default function HomeScreen() {
             try {
               const { data: savedRecipe } = await authClient.POST("/recipes", {
                 body: {
-                  name: recipeData.recipeName,
-                  content: recipeData.recipe,
+                  name: data.recipeName,
+                  content: data.recipe,
                   ingredients: params.selectedIngredients,
                   servings: params.servings,
                   genre: params.genre || undefined,
                   youtubeVideos:
                     savedVideos.length > 0
-                      ? (savedVideos as unknown as Record<string, never>)
+                      ? savedVideos
                       : undefined,
                 },
               });

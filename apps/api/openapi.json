@@ -309,7 +309,17 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RatedRecipeResponseDto"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -454,7 +464,14 @@
         ],
         "responses": {
           "200": {
-            "description": "List of YouTube videos"
+            "description": "List of YouTube videos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/YouTubeSearchResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -484,7 +501,14 @@
         },
         "responses": {
           "201": {
-            "description": "Recipe generated"
+            "description": "Recipe generated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateRecipeResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -514,7 +538,14 @@
         },
         "responses": {
           "201": {
-            "description": "Ingredients recognized"
+            "description": "Ingredients recognized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecognizeIngredientsResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -544,7 +575,14 @@
         },
         "responses": {
           "201": {
-            "description": "Ingredients validated"
+            "description": "Ingredients validated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidateIngredientsResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -934,6 +972,33 @@
           "ingredients"
         ]
       },
+      "YouTubeVideoDto": {
+        "type": "object",
+        "properties": {
+          "videoId": {
+            "type": "string",
+            "example": "dQw4w9WgXcQ"
+          },
+          "title": {
+            "type": "string",
+            "example": "トマトパスタの作り方"
+          },
+          "channelTitle": {
+            "type": "string",
+            "example": "料理チャンネル"
+          },
+          "thumbnail": {
+            "type": "string",
+            "example": "https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg"
+          }
+        },
+        "required": [
+          "videoId",
+          "title",
+          "channelTitle",
+          "thumbnail"
+        ]
+      },
       "CreateRecipeDto": {
         "type": "object",
         "properties": {
@@ -966,16 +1031,11 @@
             "nullable": true
           },
           "youtubeVideos": {
-            "type": "object",
-            "example": [
-              {
-                "videoId": "abc",
-                "title": "Recipe video",
-                "channelTitle": "Channel",
-                "thumbnail": "https://..."
-              }
-            ],
-            "nullable": true
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/YouTubeVideoDto"
+            }
           }
         },
         "required": [
@@ -1021,9 +1081,11 @@
             "nullable": true
           },
           "youtubeVideos": {
-            "type": "object",
-            "example": null,
-            "nullable": true
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/YouTubeVideoDto"
+            }
           },
           "rating": {
             "type": "number",
@@ -1070,6 +1132,24 @@
           "total"
         ]
       },
+      "RatedRecipeResponseDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "トマトパスタ"
+          },
+          "rating": {
+            "type": "number",
+            "example": 4,
+            "nullable": true
+          }
+        },
+        "required": [
+          "name",
+          "rating"
+        ]
+      },
       "UpdateRecipeRatingDto": {
         "type": "object",
         "properties": {
@@ -1081,6 +1161,20 @@
         },
         "required": [
           "rating"
+        ]
+      },
+      "YouTubeSearchResponseDto": {
+        "type": "object",
+        "properties": {
+          "videos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/YouTubeVideoDto"
+            }
+          }
+        },
+        "required": [
+          "videos"
         ]
       },
       "RatedRecipeDto": {
@@ -1133,6 +1227,23 @@
           }
         }
       },
+      "GenerateRecipeResponseDto": {
+        "type": "object",
+        "properties": {
+          "recipe": {
+            "type": "string",
+            "example": "## 材料（2人分）\n..."
+          },
+          "recipeName": {
+            "type": "string",
+            "example": "トマトパスタ"
+          }
+        },
+        "required": [
+          "recipe",
+          "recipeName"
+        ]
+      },
       "RecognizeIngredientsDto": {
         "type": "object",
         "properties": {
@@ -1142,6 +1253,25 @@
         },
         "required": [
           "image"
+        ]
+      },
+      "RecognizeIngredientsResponseDto": {
+        "type": "object",
+        "properties": {
+          "ingredients": {
+            "example": [
+              "トマト",
+              "玉ねぎ",
+              "鶏もも肉"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ingredients"
         ]
       },
       "ValidateIngredientsDto": {
@@ -1163,6 +1293,43 @@
         "required": [
           "newIngredients",
           "existingIngredients"
+        ]
+      },
+      "ValidateIngredientResultDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "トマト"
+          },
+          "isFood": {
+            "type": "boolean",
+            "example": true
+          },
+          "similarTo": {
+            "type": "string",
+            "example": null,
+            "nullable": true
+          }
+        },
+        "required": [
+          "name",
+          "isFood",
+          "similarTo"
+        ]
+      },
+      "ValidateIngredientsResponseDto": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidateIngredientResultDto"
+            }
+          }
+        },
+        "required": [
+          "results"
         ]
       },
       "LoginDto": {

@@ -391,6 +391,16 @@ export interface components {
              */
             ingredients: string[];
         };
+        YouTubeVideoDto: {
+            /** @example dQw4w9WgXcQ */
+            videoId: string;
+            /** @example トマトパスタの作り方 */
+            title: string;
+            /** @example 料理チャンネル */
+            channelTitle: string;
+            /** @example https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg */
+            thumbnail: string;
+        };
         CreateRecipeDto: {
             /** @example トマトパスタ */
             name: string;
@@ -411,17 +421,7 @@ export interface components {
             servings: number;
             /** @example 和食 */
             genre?: string | null;
-            /**
-             * @example [
-             *       {
-             *         "videoId": "abc",
-             *         "title": "Recipe video",
-             *         "channelTitle": "Channel",
-             *         "thumbnail": "https://..."
-             *       }
-             *     ]
-             */
-            youtubeVideos?: Record<string, never> | null;
+            youtubeVideos?: components["schemas"]["YouTubeVideoDto"][] | null;
         };
         RecipeResponseDto: {
             /** @example 1 */
@@ -445,8 +445,7 @@ export interface components {
             servings: number;
             /** @example 和食 */
             genre?: string | null;
-            /** @example null */
-            youtubeVideos?: Record<string, never> | null;
+            youtubeVideos?: components["schemas"]["YouTubeVideoDto"][] | null;
             /**
              * @description 1-5の5段階評価、未評価はnull
              * @example null
@@ -465,12 +464,21 @@ export interface components {
             /** @example 10 */
             total: number;
         };
+        RatedRecipeResponseDto: {
+            /** @example トマトパスタ */
+            name: string;
+            /** @example 4 */
+            rating: number | null;
+        };
         UpdateRecipeRatingDto: {
             /**
              * @description 1-5の5段階評価
              * @example 4
              */
             rating: number;
+        };
+        YouTubeSearchResponseDto: {
+            videos: components["schemas"]["YouTubeVideoDto"][];
         };
         RatedRecipeDto: {
             name: string;
@@ -484,12 +492,42 @@ export interface components {
             genre?: string;
             ratedRecipes?: components["schemas"]["RatedRecipeDto"][];
         };
+        GenerateRecipeResponseDto: {
+            /**
+             * @example ## 材料（2人分）
+             *     ...
+             */
+            recipe: string;
+            /** @example トマトパスタ */
+            recipeName: string;
+        };
         RecognizeIngredientsDto: {
             image: string;
+        };
+        RecognizeIngredientsResponseDto: {
+            /**
+             * @example [
+             *       "トマト",
+             *       "玉ねぎ",
+             *       "鶏もも肉"
+             *     ]
+             */
+            ingredients: string[];
         };
         ValidateIngredientsDto: {
             newIngredients: string[];
             existingIngredients: string[];
+        };
+        ValidateIngredientResultDto: {
+            /** @example トマト */
+            name: string;
+            /** @example true */
+            isFood: boolean;
+            /** @example null */
+            similarTo: string | null;
+        };
+        ValidateIngredientsResponseDto: {
+            results: components["schemas"]["ValidateIngredientResultDto"][];
         };
         LoginDto: {
             /** @example user@example.com */
@@ -763,7 +801,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["RatedRecipeResponseDto"][];
+                };
             };
         };
     };
@@ -852,7 +892,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["YouTubeSearchResponseDto"];
+                };
             };
         };
     };
@@ -874,7 +916,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["GenerateRecipeResponseDto"];
+                };
             };
         };
     };
@@ -896,7 +940,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["RecognizeIngredientsResponseDto"];
+                };
             };
         };
     };
@@ -918,7 +964,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ValidateIngredientsResponseDto"];
+                };
             };
         };
     };

@@ -177,7 +177,7 @@ export function IngredientSection({
         },
       });
       if (valError || !data) throw new Error("バリデーションに失敗しました");
-      const results: ValidationResult[] = (data as { results: ValidationResult[] }).results || [];
+      const results: ValidationResult[] = data.results || [];
 
       const hasProblems = results.some(
         (r) => !r.isFood || r.similarTo || r.isDuplicate
