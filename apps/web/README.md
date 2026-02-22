@@ -120,9 +120,3 @@ pnpm e2e           # Playwright (E2E テスト)
 ## 環境変数
 
 `.env.example` を `.env` にコピーして設定する。
-
-| 変数 | 説明 |
-|---|---|
-| `NEXT_PUBLIC_API_URL` | NestJS API の URL (`http://localhost:3001`) |
-| `NEXTAUTH_SECRET` | NextAuth の JWT 署名シークレット |
-| `AUTH_USER` / `AUTH_PASS` | 開発用 Basic 認証 (middleware.ts) |
