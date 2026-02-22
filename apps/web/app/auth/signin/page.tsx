@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SignInInput, type SignInInputType } from "@repo/api-schema";
 import { Button } from "@repo/ui/components/button";
@@ -9,18 +11,25 @@ import { PasswordInput } from "components/password-input";
 import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 
+import { apiClient } from "@/lib/api-client";
+
 export default function SignIn() {
   const { toast } = useToast();
+  const [emailNotVerified, setEmailNotVerified] = useState(false);
+  const [resendingEmail, setResendingEmail] = useState("");
+  const [isResending, setIsResending] = useState(false);
 
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<SignInInputType>({
     resolver: zodResolver(SignInInput),
   });
 
   const onSubmit = async (data: SignInInputType) => {
+    setEmailNotVerified(false);
     try {
       const result = await signIn("credentials", {
         email: data.email,
@@ -29,13 +38,35 @@ export default function SignIn() {
       });
 
       if (result?.error) {
-        toast.error("Invalid email or password");
+        if (result.error.includes("EMAIL_NOT_VERIFIED")) {
+          setEmailNotVerified(true);
+          setResendingEmail(data.email);
+        } else {
+          toast.error("メールアドレスまたはパスワードが正しくありません");
+        }
       } else {
         toast.success("Signed in successfully");
       }
     } catch (error) {
       console.error("Sign in error:", error);
       toast.error("Network error occurred");
+    }
+  };
+
+  const handleResendVerification = async () => {
+    const email = resendingEmail || getValues("email");
+    if (!email) return;
+
+    setIsResending(true);
+    try {
+      await apiClient.POST("/auth/resend-verification", {
+        body: { email },
+      });
+      toast.success("確認メールを再送信しました");
+    } catch {
+      toast.error("メールの送信に失敗しました");
+    } finally {
+      setIsResending(false);
     }
   };
 
@@ -47,6 +78,24 @@ export default function SignIn() {
             ログイン
           </h2>
         </div>
+
+        {emailNotVerified && (
+          <div className="rounded-md bg-yellow-50 border border-yellow-200 p-4 text-sm">
+            <p className="text-yellow-800 font-medium">メールアドレスが未確認です</p>
+            <p className="text-yellow-700 mt-1">
+              登録時に送信された確認メールのリンクをクリックしてください。
+            </p>
+            <button
+              type="button"
+              onClick={handleResendVerification}
+              disabled={isResending}
+              className="mt-2 text-orange-600 hover:text-orange-700 font-medium underline cursor-pointer"
+            >
+              {isResending ? "送信中..." : "確認メールを再送信"}
+            </button>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
             <div>

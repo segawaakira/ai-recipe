@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 
@@ -13,6 +13,9 @@ export class AuthService {
     const user = await this.usersService.validateUser(email, password);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
+    }
+    if (!user.emailVerified) {
+      throw new ForbiddenException('EMAIL_NOT_VERIFIED');
     }
     const payload = { sub: user.id, email: user.email };
     return {

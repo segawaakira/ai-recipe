@@ -12,12 +12,17 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
-          const { data, error } = await apiClient.POST("/auth/login", {
+          const { data, error, response } = await apiClient.POST("/auth/login", {
             body: {
               email: credentials?.email ?? "",
               password: credentials?.password ?? "",
             },
           });
+
+          if (response.status === 403) {
+            throw new Error("EMAIL_NOT_VERIFIED");
+          }
+
           if (error || !data) {
             console.error("[NextAuth] Login API error:", error);
             return null;
@@ -32,6 +37,9 @@ export const authOptions: NextAuthOptions = {
             accessToken: data.accessToken,
           };
         } catch (error) {
+          if (error instanceof Error && error.message === "EMAIL_NOT_VERIFIED") {
+            throw error;
+          }
           console.error("[NextAuth] authorize() exception:", error);
           return null;
         }

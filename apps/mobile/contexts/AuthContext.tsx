@@ -15,6 +15,7 @@ interface AuthContextType {
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   deleteAccount: () => Promise<void>;
+  resendVerification: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -47,9 +48,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    const { data, error } = await apiClient.POST("/auth/login", {
+    const { data, error, response } = await apiClient.POST("/auth/login", {
       body: { email, password },
     });
+    if (response.status === 403) {
+      throw new Error("EMAIL_NOT_VERIFIED");
+    }
     if (error || !data) {
       throw new Error("ログインに失敗しました");
     }
@@ -69,8 +73,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) {
       throw new Error("アカウント作成に失敗しました");
     }
-    await signIn(email, password);
-  }, [signIn]);
+    // 自動ログインは行わない（メール認証が必要）
+  }, []);
 
   const signOut = useCallback(async () => {
     await removeToken();
@@ -86,9 +90,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await signOut();
   }, [token, signOut]);
 
+  const resendVerification = useCallback(async (email: string) => {
+    await apiClient.POST("/auth/resend-verification", {
+      body: { email },
+    });
+  }, []);
+
   return (
     <AuthContext.Provider
-      value={{ token, user, isLoading, signIn, signUp, signOut, deleteAccount }}
+      value={{ token, user, isLoading, signIn, signUp, signOut, deleteAccount, resendVerification }}
     >
       {children}
     </AuthContext.Provider>

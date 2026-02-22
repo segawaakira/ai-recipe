@@ -15,6 +15,7 @@ import { UserResponseDto } from './dto/user-response.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { z } from 'zod';
 import { Public } from '../auth/public.decorator';
+import { EmailVerificationService } from '../email/email-verification.service';
 
 const CreateUserInput = z.object({
   email: z.string().email(),
@@ -32,7 +33,10 @@ const CreateUserInput = z.object({
 export class UsersController {
   private readonly logger = new Logger(UsersController.name);
 
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly emailVerificationService: EmailVerificationService,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Get all users' })
@@ -55,6 +59,18 @@ export class UsersController {
         user.password,
       );
       this.logger.log(`User created successfully: ${createdUser.id}`);
+
+      // メール認証メールを送信（失敗してもユーザー作成は成功させる）
+      try {
+        await this.emailVerificationService.createAndSendVerification(
+          createdUser.id,
+          createdUser.email,
+        );
+      } catch (emailError) {
+        this.logger.error(
+          `Failed to send verification email: ${emailError instanceof Error ? emailError.message : 'Unknown error'}`,
+        );
+      }
 
       // パスワードを除外してレスポンスを返す
       const { password, ...userWithoutPassword } = createdUser;
