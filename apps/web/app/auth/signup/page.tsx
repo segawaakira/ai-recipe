@@ -3,12 +3,22 @@
 import { useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CreateUserInput, type CreateUserInputType } from "@repo/api-schema";
+import { CreateUserInput } from "@repo/api-schema";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { useToast } from "@repo/ui/hooks/use-toast";
 import { PasswordInput } from "components/password-input";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+const SignUpFormSchema = CreateUserInput.extend({
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "パスワードが一致しません",
+  path: ["confirmPassword"],
+});
+
+type SignUpFormType = z.infer<typeof SignUpFormSchema>;
 
 import { apiClient } from "@/lib/api-client";
 
@@ -21,11 +31,11 @@ export default function SignUp() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<CreateUserInputType>({
-    resolver: zodResolver(CreateUserInput),
+  } = useForm<SignUpFormType>({
+    resolver: zodResolver(SignUpFormSchema),
   });
 
-  const onSubmit = async (data: CreateUserInputType) => {
+  const onSubmit = async (data: SignUpFormType) => {
     try {
       const { error } = await apiClient.POST("/users", {
         body: {
@@ -91,10 +101,19 @@ export default function SignUp() {
             <div>
               <PasswordInput
                 {...register("password")}
-                placeholder="パスワード"
+                placeholder="パスワード（8文字以上・英字と数字を含む）"
               />
               {errors.password && (
                 <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+              )}
+            </div>
+            <div>
+              <PasswordInput
+                {...register("confirmPassword")}
+                placeholder="パスワード（確認）"
+              />
+              {errors.confirmPassword && (
+                <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
               )}
             </div>
           </div>
