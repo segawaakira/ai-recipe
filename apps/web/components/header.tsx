@@ -160,8 +160,8 @@ export function Header() {
       <header className="max-w-md mx-auto py-3 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2">
             <Image src="/logo.svg" alt="AI Recipe" width={28} height={28} />
-            <h1 className="text-lg font-bold text-gray-900">
-              AIレシピ提案アプリ
+            <h1 className="text-lg font-bold text-orange-600">
+              AI Recipe
             </h1>
           </Link>
 

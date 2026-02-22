@@ -81,17 +81,21 @@ export default function SignUp() {
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-md rounded-lg border bg-white p-8 shadow-sm space-y-8">
-        <div>
-          <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
+        <div className="space-y-2">
+          <h1 className="text-center text-3xl font-bold tracking-tight text-orange-600">
             新規登録
-          </h2>
+          </h1>
+          <p className="text-center text-sm text-gray-500">
+            アカウントを作成してレシピを保存しましょう
+          </p>
         </div>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">メールアドレス</label>
               <Input
                 {...register("email")}
-                placeholder="メールアドレス"
+                placeholder="email@example.com"
                 type="email"
               />
               {errors.email && (
@@ -99,18 +103,20 @@ export default function SignUp() {
               )}
             </div>
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">パスワード</label>
               <PasswordInput
                 {...register("password")}
-                placeholder="パスワード（8文字以上・英字と数字を含む）"
+                placeholder="8文字以上（英字・数字を含む）"
               />
               {errors.password && (
                 <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
               )}
             </div>
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">パスワード（確認）</label>
               <PasswordInput
                 {...register("confirmPassword")}
-                placeholder="パスワード（確認）"
+                placeholder="パスワードをもう一度入力"
               />
               {errors.confirmPassword && (
                 <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
@@ -118,7 +124,7 @@ export default function SignUp() {
             </div>
           </div>
           <Button type="submit" disabled={isSubmitting} className="w-full bg-orange-600 hover:bg-orange-700 cursor-pointer">
-            {isSubmitting ? "登録中..." : "会員登録"}
+            {isSubmitting ? "登録中..." : "アカウントを作成"}
           </Button>
           <p className="text-center text-sm text-gray-500">
             アカウントをお持ちの方は

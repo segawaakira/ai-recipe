@@ -73,10 +73,13 @@ export default function SignIn() {
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-md rounded-lg border bg-white p-8 shadow-sm space-y-8">
-        <div>
-          <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
-            ログイン
-          </h2>
+        <div className="space-y-2">
+          <h1 className="text-center text-3xl font-bold tracking-tight text-orange-600">
+            AI Recipe
+          </h1>
+          <p className="text-center text-sm text-gray-500">
+            ログインしてレシピを管理しましょう
+          </p>
         </div>
 
         {emailNotVerified && (
@@ -99,16 +102,18 @@ export default function SignIn() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">メールアドレス</label>
               <Input
                 {...register("email")}
                 type="email"
-                placeholder="メールアドレス"
+                placeholder="email@example.com"
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
               )}
             </div>
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">パスワード</label>
               <PasswordInput
                 {...register("password")}
                 placeholder="パスワード"

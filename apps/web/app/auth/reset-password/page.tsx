@@ -96,11 +96,11 @@ export default function ResetPassword() {
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-md rounded-lg border bg-white p-8 shadow-sm space-y-8">
-        <div>
-          <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
+        <div className="space-y-2">
+          <h1 className="text-center text-3xl font-bold tracking-tight text-orange-600">
             新しいパスワードの設定
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          </h1>
+          <p className="text-center text-sm text-gray-500">
             新しいパスワードを入力してください
           </p>
         </div>
@@ -108,18 +108,20 @@ export default function ResetPassword() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">新しいパスワード</label>
               <PasswordInput
                 {...register("newPassword")}
-                placeholder="新しいパスワード"
+                placeholder="8文字以上（英字・数字を含む）"
               />
               {errors.newPassword && (
                 <p className="mt-1 text-sm text-red-600">{errors.newPassword.message}</p>
               )}
             </div>
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">新しいパスワード（確認）</label>
               <PasswordInput
                 {...register("confirmPassword")}
-                placeholder="新しいパスワード（確認）"
+                placeholder="パスワードをもう一度入力"
               />
               {errors.confirmPassword && (
                 <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
