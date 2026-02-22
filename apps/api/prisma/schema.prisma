@@ -9,11 +9,40 @@ datasource db {
 }
 
 model User {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique
+  password      String
+  emailVerified Boolean  @default(false)
+  ingredientSets          IngredientSet[]
+  recipes                 Recipe[]
+  emailVerificationTokens EmailVerificationToken[]
+  passwordResetTokens     PasswordResetToken[]
+  emailChangeTokens       EmailChangeToken[]
+}
+
+model EmailVerificationToken {
   id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  ingredientSets IngredientSet[]
-  recipes        Recipe[]
+  token     String   @unique
+  expiresAt DateTime
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  expiresAt DateTime
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model EmailChangeToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  newEmail  String
+  expiresAt DateTime
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model IngredientSet {

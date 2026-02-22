@@ -18,7 +18,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "AIレシピ提案アプリ",
+  title: "AI Recipe - AIレシピ提案アプリ",
   description: "所有している食材からAIがおすすめレシピを提案します",
 };
 

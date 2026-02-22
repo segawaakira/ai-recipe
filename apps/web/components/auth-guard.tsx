@@ -41,7 +41,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   }
 
   // 認証されていない場合、authページ以外はリダイレクト
-  if (!session && !pathname.includes("/auth")) {
+  if (!session && !pathname.startsWith("/auth")) {
     console.log("Redirecting to signin: no session");
     redirect("/auth/signin");
   }

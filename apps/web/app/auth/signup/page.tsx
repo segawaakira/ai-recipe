@@ -1,30 +1,41 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CreateUserInput, type CreateUserInputType } from "@repo/api-schema";
+import { CreateUserInput } from "@repo/api-schema";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { useToast } from "@repo/ui/hooks/use-toast";
 import { PasswordInput } from "components/password-input";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+const SignUpFormSchema = CreateUserInput.extend({
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "パスワードが一致しません",
+  path: ["confirmPassword"],
+});
+
+type SignUpFormType = z.infer<typeof SignUpFormSchema>;
 
 import { apiClient } from "@/lib/api-client";
 
 export default function SignUp() {
   const { toast } = useToast();
-  const router = useRouter();
+  const [emailSent, setEmailSent] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<CreateUserInputType>({
-    resolver: zodResolver(CreateUserInput),
+  } = useForm<SignUpFormType>({
+    resolver: zodResolver(SignUpFormSchema),
   });
 
-  const onSubmit = async (data: CreateUserInputType) => {
+  const onSubmit = async (data: SignUpFormType) => {
     try {
       const { error } = await apiClient.POST("/users", {
         body: {
@@ -38,28 +49,53 @@ export default function SignUp() {
         return;
       }
 
-      toast.success("User created successfully");
-      router.push("/auth/signin");
+      setRegisteredEmail(data.email);
+      setEmailSent(true);
     } catch (error) {
       console.error("Signup error:", error);
       toast.error("Network error occurred");
     }
   };
 
+  if (emailSent) {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <div className="w-full max-w-md rounded-lg border bg-white p-8 shadow-sm text-center space-y-6">
+          <div className="text-5xl">&#9993;</div>
+          <h2 className="text-2xl font-bold text-gray-900">確認メールを送信しました</h2>
+          <p className="text-gray-600">
+            <span className="font-medium text-gray-900">{registeredEmail}</span>
+            {" "}に確認メールを送信しました。メール内のリンクをクリックして登録を完了してください。
+          </p>
+          <p className="text-sm text-gray-500">
+            メールが届かない場合は、迷惑メールフォルダをご確認ください。
+          </p>
+          <a href="/auth/signin" className="block text-orange-600 hover:text-orange-700 font-medium text-sm cursor-pointer">
+            ログインページへ
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-md rounded-lg border bg-white p-8 shadow-sm space-y-8">
-        <div>
-          <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
+        <div className="space-y-2">
+          <h1 className="text-center text-3xl font-bold tracking-tight text-orange-600">
             新規登録
-          </h2>
+          </h1>
+          <p className="text-center text-sm text-gray-500">
+            アカウントを作成してレシピを保存しましょう
+          </p>
         </div>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">メールアドレス</label>
               <Input
                 {...register("email")}
-                placeholder="メールアドレス"
+                placeholder="email@example.com"
                 type="email"
               />
               {errors.email && (
@@ -67,17 +103,28 @@ export default function SignUp() {
               )}
             </div>
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">パスワード</label>
               <PasswordInput
                 {...register("password")}
-                placeholder="パスワード"
+                placeholder="8文字以上（英字・数字を含む）"
               />
               {errors.password && (
                 <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
               )}
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">パスワード（確認）</label>
+              <PasswordInput
+                {...register("confirmPassword")}
+                placeholder="パスワードをもう一度入力"
+              />
+              {errors.confirmPassword && (
+                <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
+              )}
+            </div>
           </div>
           <Button type="submit" disabled={isSubmitting} className="w-full bg-orange-600 hover:bg-orange-700 cursor-pointer">
-            {isSubmitting ? "登録中..." : "会員登録"}
+            {isSubmitting ? "登録中..." : "アカウントを作成"}
           </Button>
           <p className="text-center text-sm text-gray-500">
             アカウントをお持ちの方は

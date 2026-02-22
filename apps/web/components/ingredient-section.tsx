@@ -2,7 +2,6 @@
 
 import type React from "react";
 
-import { Skeleton } from "@repo/ui/components/skeleton";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -14,6 +13,7 @@ import {
 } from "@repo/ui/components/card";
 import { Input } from "@repo/ui/components/input";
 import { Separator } from "@repo/ui/components/separator";
+import { Skeleton } from "@repo/ui/components/skeleton";
 import {
   Tabs,
   TabsContent,
@@ -24,7 +24,7 @@ import {
   ArrowDown,
   Carrot,
   Check,
-  ChefHat,
+  CookingPot,
   Loader2,
   Pencil,
   Plus,
@@ -462,7 +462,7 @@ export function IngredientSection({
                   </>
                 ) : (
                   <>
-                    <ChefHat className="h-4 w-4 mr-2" />
+                    <CookingPot className="h-4 w-4 mr-2" />
                     AIレシピを作成
                     {selectedIngredients.length > 0 &&
                       ` (${selectedIngredients.length}食材)`}

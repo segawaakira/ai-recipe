@@ -18,6 +18,7 @@ export default function SignUpScreen() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   const handleSignUp = async () => {
     if (!email.trim() || !password.trim()) {
@@ -39,12 +40,70 @@ export default function SignUpScreen() {
     setIsLoading(true);
     try {
       await signUp(email.trim(), password);
+      setEmailSent(true);
     } catch {
       Alert.alert("登録失敗", "アカウントの作成に失敗しました。別のメールアドレスをお試しください。");
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (emailSent) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", paddingHorizontal: 24, backgroundColor: "#fff" }}>
+        <Text
+          style={{
+            fontSize: 48,
+            textAlign: "center",
+            marginBottom: 16,
+          }}
+        >
+          &#9993;
+        </Text>
+        <Text
+          style={{
+            fontSize: 22,
+            fontWeight: "bold",
+            textAlign: "center",
+            marginBottom: 12,
+            color: "#111827",
+          }}
+        >
+          確認メールを送信しました
+        </Text>
+        <Text
+          style={{
+            fontSize: 14,
+            textAlign: "center",
+            color: "#6b7280",
+            marginBottom: 8,
+            lineHeight: 22,
+          }}
+        >
+          <Text style={{ fontWeight: "600", color: "#111827" }}>{email}</Text>
+          {" "}に確認メールを送信しました。{"\n"}
+          メール内のリンクをクリックして登録を完了してください。
+        </Text>
+        <Text
+          style={{
+            fontSize: 12,
+            textAlign: "center",
+            color: "#9ca3af",
+            marginBottom: 24,
+          }}
+        >
+          メールが届かない場合は、迷惑メールフォルダをご確認ください。
+        </Text>
+        <Link href="/(auth)/sign-in" asChild>
+          <TouchableOpacity>
+            <Text style={{ color: "#ea580c", fontSize: 14, fontWeight: "600", textAlign: "center" }}>
+              ログインページへ
+            </Text>
+          </TouchableOpacity>
+        </Link>
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView

@@ -13,23 +13,46 @@ import { Link } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function SignInScreen() {
-  const { signIn } = useAuth();
+  const { signIn, resendVerification } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [emailNotVerified, setEmailNotVerified] = useState(false);
+  const [isResending, setIsResending] = useState(false);
 
   const handleSignIn = async () => {
     if (!email.trim() || !password.trim()) {
       Alert.alert("エラー", "メールアドレスとパスワードを入力してください");
       return;
     }
+    setEmailNotVerified(false);
     setIsLoading(true);
     try {
       await signIn(email.trim(), password);
-    } catch {
-      Alert.alert("ログイン失敗", "メールアドレスまたはパスワードが正しくありません");
+    } catch (error) {
+      if (error instanceof Error && error.message === "EMAIL_NOT_VERIFIED") {
+        setEmailNotVerified(true);
+      } else {
+        Alert.alert("ログイン失敗", "メールアドレスまたはパスワードが正しくありません");
+      }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!email.trim()) {
+      Alert.alert("エラー", "メールアドレスを入力してください");
+      return;
+    }
+    setIsResending(true);
+    try {
+      await resendVerification(email.trim());
+      Alert.alert("送信完了", "確認メールを再送信しました");
+    } catch {
+      Alert.alert("エラー", "メールの送信に失敗しました");
+    } finally {
+      setIsResending(false);
     }
   };
 
@@ -60,6 +83,35 @@ export default function SignInScreen() {
         >
           ログインしてレシピを管理しましょう
         </Text>
+
+        {emailNotVerified && (
+          <View
+            style={{
+              backgroundColor: "#fefce8",
+              borderWidth: 1,
+              borderColor: "#fde68a",
+              borderRadius: 8,
+              padding: 12,
+              marginBottom: 16,
+            }}
+          >
+            <Text style={{ color: "#92400e", fontWeight: "600", fontSize: 14 }}>
+              メールアドレスが未確認です
+            </Text>
+            <Text style={{ color: "#a16207", fontSize: 13, marginTop: 4 }}>
+              登録時に送信された確認メールのリンクをクリックしてください。
+            </Text>
+            <TouchableOpacity
+              onPress={handleResendVerification}
+              disabled={isResending}
+              style={{ marginTop: 8 }}
+            >
+              <Text style={{ color: "#ea580c", fontWeight: "600", fontSize: 13, textDecorationLine: "underline" }}>
+                {isResending ? "送信中..." : "確認メールを再送信"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         <View style={{ gap: 16 }}>
           <View>
@@ -102,6 +154,16 @@ export default function SignInScreen() {
                 fontSize: 16,
               }}
             />
+          </View>
+
+          <View style={{ alignItems: "flex-end" }}>
+            <Link href="/(auth)/forgot-password" asChild>
+              <TouchableOpacity>
+                <Text style={{ color: "#ea580c", fontSize: 13, fontWeight: "500" }}>
+                  パスワードを忘れた方
+                </Text>
+              </TouchableOpacity>
+            </Link>
           </View>
 
           <TouchableOpacity

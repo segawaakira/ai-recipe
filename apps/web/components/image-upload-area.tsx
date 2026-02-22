@@ -8,8 +8,8 @@ import { Button } from "@repo/ui/components/button";
 import { AlertCircle, Camera, Check, Loader2, Upload, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { Separator } from "@repo/ui/components/separator";
 import type { createAuthClient } from "@/lib/auth-api-client";
+import { Separator } from "@repo/ui/components/separator";
 
 interface ImageUploadAreaProps {
   onIngredientsRecognized: (ingredients: string[]) => void;
@@ -269,7 +269,7 @@ export function ImageUploadArea({
               <div className="flex gap-2 justify-center">
                 <Button
                   onClick={captureFromWebcam}
-                  className="bg-orange-600 hover:bg-orange-700 flex items-center gap-2"
+                  className="bg-orange-600 hover:bg-orange-700 flex items-center gap-2 cursor-pointer"
                 >
                   <Camera className="h-4 w-4" />
                   撮影する
@@ -277,7 +277,7 @@ export function ImageUploadArea({
                 <Button
                   variant="ghost"
                   onClick={stopWebcam}
-                  className="text-white border border-white hover:bg-white/10 hover:text-white"
+                  className="text-white border border-white hover:bg-white/10 hover:text-white cursor-pointer"
                 >
                   キャンセル
                 </Button>
@@ -312,7 +312,7 @@ export function ImageUploadArea({
                 <Button
                   variant="outline"
                   onClick={handleCameraClick}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 cursor-pointer"
                 >
                   <Camera className="h-4 w-4" />
                   カメラで撮影
@@ -320,7 +320,7 @@ export function ImageUploadArea({
                 <Button
                   variant="outline"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 cursor-pointer"
                 >
                   <Upload className="h-4 w-4" />
                   ファイルを選択

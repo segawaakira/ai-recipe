@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@repo/ui/components/table";
-import { Clock, Search, Star } from "lucide-react";
+import { ArrowLeft, Clock, Search, Star } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -27,6 +27,7 @@ import { z } from "zod";
 import { createAuthClient } from "@/lib/auth-api-client";
 import { Pagination } from "components/pagination";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const RecipeSearchInput = z.object({
@@ -151,6 +152,11 @@ export default function HistoryPage() {
 
   return (
     <div className="space-y-6">
+            <div>
+              <Link href="/" className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 font-medium w-fit mb-4">
+                <ArrowLeft className="h-4 w-4" />
+                AIレシピ作成画面に戻る
+              </Link>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -257,6 +263,7 @@ export default function HistoryPage() {
                 />
               </CardContent>
             </Card>
+            </div>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { RecipeModule } from './recipe/recipe.module';
 import { YouTubeModule } from './youtube/youtube.module';
 import { GeminiModule } from './gemini/gemini.module';
 import { AuthModule } from './auth/auth.module';
+import { EmailModule } from './email/email.module';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 
 @Module({
@@ -20,6 +21,7 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
     YouTubeModule,
     GeminiModule,
     AuthModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [

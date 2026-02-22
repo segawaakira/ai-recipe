@@ -15,6 +15,10 @@ interface AuthContextType {
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   deleteAccount: () => Promise<void>;
+  resendVerification: (email: string) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
+  requestPasswordReset: (email: string) => Promise<void>;
+  requestEmailChange: (newEmail: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -47,9 +51,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    const { data, error } = await apiClient.POST("/auth/login", {
+    const { data, error, response } = await apiClient.POST("/auth/login", {
       body: { email, password },
     });
+    if (response.status === 403) {
+      throw new Error("EMAIL_NOT_VERIFIED");
+    }
     if (error || !data) {
       throw new Error("ログインに失敗しました");
     }
@@ -69,8 +76,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) {
       throw new Error("アカウント作成に失敗しました");
     }
-    await signIn(email, password);
-  }, [signIn]);
+    // 自動ログインは行わない（メール認証が必要）
+  }, []);
 
   const signOut = useCallback(async () => {
     await removeToken();
@@ -86,9 +93,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await signOut();
   }, [token, signOut]);
 
+  const resendVerification = useCallback(async (email: string) => {
+    await apiClient.POST("/auth/resend-verification", {
+      body: { email },
+    });
+  }, []);
+
+  const changePassword = useCallback(async (currentPassword: string, newPassword: string) => {
+    if (!token) throw new Error("ログインが必要です");
+    const { createAuthClient } = await import("@/lib/auth-api-client");
+    const authClient = createAuthClient(token);
+    const { error } = await authClient.POST("/auth/change-password", {
+      body: { currentPassword, newPassword },
+    });
+    if (error) {
+      throw new Error("現在のパスワードが正しくありません");
+    }
+  }, [token]);
+
+  const requestPasswordReset = useCallback(async (email: string) => {
+    await apiClient.POST("/auth/request-password-reset", {
+      body: { email },
+    });
+  }, []);
+
+  const requestEmailChange = useCallback(async (newEmail: string) => {
+    if (!token) throw new Error("ログインが必要です");
+    const { createAuthClient } = await import("@/lib/auth-api-client");
+    const authClient = createAuthClient(token);
+    const { error } = await authClient.POST("/auth/request-email-change", {
+      body: { newEmail },
+    });
+    if (error) {
+      throw new Error("このメールアドレスは既に使用されています");
+    }
+  }, [token]);
+
   return (
     <AuthContext.Provider
-      value={{ token, user, isLoading, signIn, signUp, signOut, deleteAccount }}
+      value={{ token, user, isLoading, signIn, signUp, signOut, deleteAccount, resendVerification, changePassword, requestPasswordReset, requestEmailChange }}
     >
       {children}
     </AuthContext.Provider>

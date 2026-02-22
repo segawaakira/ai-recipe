@@ -8,9 +8,10 @@ import {
   CardTitle,
 } from "@repo/ui/components/card";
 import { Separator } from "@repo/ui/components/separator";
-import { ChefHat, CookingPot } from "lucide-react";
+import { UtensilsCrossed } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
+import { LoadingAnimation } from "components/loading-animation";
 import { RecipeMeta } from "components/recipe-meta";
 import { StarRating } from "components/star-rating";
 import { YouTubeVideos } from "components/youtube-videos";
@@ -30,6 +31,7 @@ interface RecipeDisplaySectionProps {
   recipeRating: number | null;
   recipeIngredients: string[];
   recipeGenre: string;
+  isGenerating: boolean;
   onRate: (rating: number) => Promise<void>;
 }
 
@@ -41,13 +43,14 @@ export function RecipeDisplaySection({
   recipeRating,
   recipeIngredients,
   recipeGenre,
+  isGenerating,
   onRate,
 }: RecipeDisplaySectionProps) {
   return (
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <CookingPot className="h-5 w-5" />
+          <UtensilsCrossed className="h-5 w-5" />
           おすすめレシピ
         </CardTitle>
         <CardDescription>
@@ -92,11 +95,16 @@ export function RecipeDisplaySection({
               />
             )}
           </div>
+        ) : isGenerating ? (
+          <div className="flex flex-col items-center py-12 text-gray-500">
+            <LoadingAnimation />
+            <p className="mt-8 text-sm">レシピを生成中...</p>
+          </div>
         ) : (
           <div className="text-center py-12 text-gray-500">
-            <ChefHat className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-            <p>「AIレシピを作成」ボタンを押して</p>
-            <p>おすすめレシピを生成してください</p>
+            <img src="/logo.svg" alt="logo" className="h-12 w-12 mx-auto mb-4 grayscale opacity-30" />
+            <p>「AIレシピを作成」ボタンを押して<br />
+            おすすめレシピを生成してください</p>
           </div>
         )}
       </CardContent>
