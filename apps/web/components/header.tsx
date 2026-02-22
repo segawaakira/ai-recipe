@@ -2,7 +2,7 @@
 
 import { apiClient } from "@/lib/api-client";
 import { createAuthClient } from "@/lib/auth-api-client";
-import { ChangePasswordInput, type ChangePasswordInputType } from "@repo/api-schema";
+import { ChangePasswordInput, type ChangePasswordInputType, RequestEmailChangeInput, type RequestEmailChangeInputType } from "@repo/api-schema";
 import { Button } from "@repo/ui/components/button";
 import {
   Dialog,
@@ -18,8 +18,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@repo/ui/components/dropdown-menu";
+import { Input } from "@repo/ui/components/input";
 import { useToast } from "@repo/ui/hooks/use-toast";
-import { Clock, KeyRound, LogOut, Menu, UserX } from "lucide-react";
+import { Clock, KeyRound, LogOut, Mail, Menu, UserX } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -44,6 +45,7 @@ export function Header() {
   const { toast } = useToast();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showChangeEmail, setShowChangeEmail] = useState(false);
 
   const authClient = useMemo(
     () => session?.accessToken ? createAuthClient(session.accessToken) : null,
@@ -57,6 +59,15 @@ export function Header() {
     formState: { errors, isSubmitting },
   } = useForm<ChangePasswordFormType>({
     resolver: zodResolver(ChangePasswordForm),
+  });
+
+  const {
+    register: registerEmail,
+    handleSubmit: handleSubmitEmail,
+    reset: resetEmail,
+    formState: { errors: emailErrors, isSubmitting: isSubmittingEmail },
+  } = useForm<RequestEmailChangeInputType>({
+    resolver: zodResolver(RequestEmailChangeInput),
   });
 
   const handleLogout = () => {
@@ -120,6 +131,30 @@ export function Header() {
     }
   };
 
+  const handleChangeEmail = async (data: RequestEmailChangeInputType) => {
+    if (!authClient) {
+      toast.error("ログインが必要です");
+      return;
+    }
+
+    try {
+      const { error } = await authClient.POST("/auth/request-email-change", {
+        body: { newEmail: data.newEmail },
+      });
+
+      if (error) {
+        toast.error("このメールアドレスは既に使用されています");
+        return;
+      }
+
+      toast.success("確認メールを新しいメールアドレスに送信しました");
+      setShowChangeEmail(false);
+      resetEmail();
+    } catch {
+      toast.error("エラーが発生しました");
+    }
+  };
+
   return (
     <div className="px-4 bg-white shadow-sm border-b">
       <header className="max-w-md mx-auto py-3 flex justify-between items-center">
@@ -151,6 +186,13 @@ export function Header() {
                     <Clock className="h-4 w-4 mr-2" />
                     レシピ提案履歴
                   </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setShowChangeEmail(true)}
+                  className="cursor-pointer"
+                >
+                  <Mail className="h-4 w-4 mr-2" />
+                  メールアドレス変更
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => setShowChangePassword(true)}
@@ -192,6 +234,52 @@ export function Header() {
         description="本当にアカウントを削除しますか？この操作は取り消せません。"
         onConfirm={handleDeleteAccount}
       />
+
+      <Dialog open={showChangeEmail} onOpenChange={(open) => {
+        setShowChangeEmail(open);
+        if (!open) resetEmail();
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>メールアドレス変更</DialogTitle>
+            <DialogDescription>
+              新しいメールアドレスを入力してください。確認メールが送信されます。
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmitEmail(handleChangeEmail)} className="space-y-4">
+            <div>
+              <Input
+                {...registerEmail("newEmail")}
+                type="email"
+                placeholder="新しいメールアドレス"
+              />
+              {emailErrors.newEmail && (
+                <p className="mt-1 text-sm text-red-600">{emailErrors.newEmail.message}</p>
+              )}
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setShowChangeEmail(false);
+                  resetEmail();
+                }}
+                className="cursor-pointer"
+              >
+                キャンセル
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmittingEmail}
+                className="bg-orange-600 hover:bg-orange-700 cursor-pointer"
+              >
+                {isSubmittingEmail ? "送信中..." : "確認メールを送信"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={showChangePassword} onOpenChange={(open) => {
         setShowChangePassword(open);

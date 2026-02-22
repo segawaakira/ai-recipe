@@ -43,3 +43,8 @@ export const ResetPasswordInput = z.object({
   newPassword: passwordSchema,
 });
 export type ResetPasswordInputType = z.infer<typeof ResetPasswordInput>;
+
+export const RequestEmailChangeInput = z.object({
+  newEmail: z.string().email("有効なメールアドレスを入力してください"),
+});
+export type RequestEmailChangeInputType = z.infer<typeof RequestEmailChangeInput>;

@@ -734,6 +734,67 @@
           "auth"
         ]
       }
+    },
+    "/auth/request-email-change": {
+      "post": {
+        "operationId": "AuthController_requestEmailChange",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestEmailChangeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verification email sent to new address"
+          },
+          "400": {
+            "description": "Email already in use"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Request email address change",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/verify-email-change": {
+      "post": {
+        "operationId": "AuthController_verifyEmailChange",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyEmailDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email changed successfully"
+          },
+          "400": {
+            "description": "Invalid or expired token"
+          }
+        },
+        "summary": "Verify email change with token",
+        "tags": [
+          "auth"
+        ]
+      }
     }
   },
   "info": {
@@ -1189,6 +1250,18 @@
         "required": [
           "token",
           "newPassword"
+        ]
+      },
+      "RequestEmailChangeDto": {
+        "type": "object",
+        "properties": {
+          "newEmail": {
+            "type": "string",
+            "example": "new@example.com"
+          }
+        },
+        "required": [
+          "newEmail"
         ]
       }
     }

@@ -8,8 +8,10 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 import { ResendVerificationDto } from './dto/resend-verification.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { RequestEmailChangeDto } from './dto/request-email-change.dto';
 import { EmailVerificationService } from '../email/email-verification.service';
 import { PasswordResetService } from '../email/password-reset.service';
+import { EmailChangeService } from '../email/email-change.service';
 import { Public } from './public.decorator';
 import { CurrentUser } from './current-user.decorator';
 
@@ -20,6 +22,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly emailVerificationService: EmailVerificationService,
     private readonly passwordResetService: PasswordResetService,
+    private readonly emailChangeService: EmailChangeService,
   ) {}
 
   @Public()
@@ -86,5 +89,29 @@ export class AuthController {
   async resetPassword(@Body() dto: ResetPasswordDto) {
     await this.passwordResetService.resetPassword(dto.token, dto.newPassword);
     return { message: 'パスワードをリセットしました' };
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('request-email-change')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Request email address change' })
+  @ApiResponse({ status: 200, description: 'Verification email sent to new address' })
+  @ApiResponse({ status: 400, description: 'Email already in use' })
+  async requestEmailChange(
+    @CurrentUser() user: { userId: number; email: string },
+    @Body() dto: RequestEmailChangeDto,
+  ) {
+    await this.emailChangeService.requestEmailChange(user.userId, dto.newEmail);
+    return { message: '確認メールを新しいメールアドレスに送信しました' };
+  }
+
+  @Public()
+  @Post('verify-email-change')
+  @ApiOperation({ summary: 'Verify email change with token' })
+  @ApiResponse({ status: 200, description: 'Email changed successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired token' })
+  async verifyEmailChange(@Body() dto: VerifyEmailDto) {
+    await this.emailChangeService.verifyEmailChange(dto.token);
+    return { message: 'メールアドレスを変更しました。再ログインしてください。' };
   }
 }

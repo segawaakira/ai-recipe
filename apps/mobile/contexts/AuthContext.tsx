@@ -18,6 +18,7 @@ interface AuthContextType {
   resendVerification: (email: string) => Promise<void>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   requestPasswordReset: (email: string) => Promise<void>;
+  requestEmailChange: (newEmail: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -116,9 +117,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const requestEmailChange = useCallback(async (newEmail: string) => {
+    if (!token) throw new Error("ログインが必要です");
+    const { createAuthClient } = await import("@/lib/auth-api-client");
+    const authClient = createAuthClient(token);
+    const { error } = await authClient.POST("/auth/request-email-change", {
+      body: { newEmail },
+    });
+    if (error) {
+      throw new Error("このメールアドレスは既に使用されています");
+    }
+  }, [token]);
+
   return (
     <AuthContext.Provider
-      value={{ token, user, isLoading, signIn, signUp, signOut, deleteAccount, resendVerification, changePassword, requestPasswordReset }}
+      value={{ token, user, isLoading, signIn, signUp, signOut, deleteAccount, resendVerification, changePassword, requestPasswordReset, requestEmailChange }}
     >
       {children}
     </AuthContext.Provider>

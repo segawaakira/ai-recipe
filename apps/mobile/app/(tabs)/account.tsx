@@ -15,12 +15,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { showConfirmDialog } from "@/components/ConfirmDialog";
 
 export default function AccountScreen() {
-  const { user, signOut, deleteAccount, changePassword } = useAuth();
+  const { user, signOut, deleteAccount, changePassword, requestEmailChange } = useAuth();
   const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showChangeEmail, setShowChangeEmail] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [newEmail, setNewEmail] = useState("");
   const [isChanging, setIsChanging] = useState(false);
+  const [isChangingEmail, setIsChangingEmail] = useState(false);
 
   const handleLogout = () => {
     showConfirmDialog({
@@ -56,6 +59,29 @@ export default function AccountScreen() {
     setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
+  };
+
+  const handleChangeEmail = async () => {
+    if (!newEmail.trim()) {
+      Alert.alert("エラー", "メールアドレスを入力してください");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+      Alert.alert("エラー", "有効なメールアドレスを入力してください");
+      return;
+    }
+
+    setIsChangingEmail(true);
+    try {
+      await requestEmailChange(newEmail);
+      Alert.alert("送信完了", "確認メールを新しいメールアドレスに送信しました");
+      setShowChangeEmail(false);
+      setNewEmail("");
+    } catch {
+      Alert.alert("エラー", "このメールアドレスは既に使用されています");
+    } finally {
+      setIsChangingEmail(false);
+    }
   };
 
   const handleChangePassword = async () => {
@@ -137,6 +163,23 @@ export default function AccountScreen() {
         }}
       >
         <TouchableOpacity
+          onPress={() => setShowChangeEmail(true)}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 12,
+            paddingVertical: 16,
+            paddingHorizontal: 20,
+            borderBottomWidth: 1,
+            borderBottomColor: "#f3f4f6",
+          }}
+        >
+          <Ionicons name="mail-outline" size={22} color="#374151" />
+          <Text style={{ flex: 1, fontSize: 15, color: "#374151" }}>メールアドレス変更</Text>
+          <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
           onPress={() => setShowChangePassword(true)}
           style={{
             flexDirection: "row",
@@ -185,6 +228,97 @@ export default function AccountScreen() {
           <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
         </TouchableOpacity>
       </View>
+
+      {/* Change Email Modal */}
+      <Modal
+        visible={showChangeEmail}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => {
+          setShowChangeEmail(false);
+          setNewEmail("");
+        }}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1, backgroundColor: "#fff" }}
+        >
+          {/* Header */}
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              paddingHorizontal: 16,
+              paddingVertical: 12,
+              borderBottomWidth: 1,
+              borderBottomColor: "#f3f4f6",
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => {
+                setShowChangeEmail(false);
+                setNewEmail("");
+              }}
+            >
+              <Text style={{ fontSize: 16, color: "#6b7280" }}>キャンセル</Text>
+            </TouchableOpacity>
+            <Text style={{ fontSize: 17, fontWeight: "600", color: "#111827" }}>
+              メールアドレス変更
+            </Text>
+            <View style={{ width: 70 }} />
+          </View>
+
+          {/* Form */}
+          <View style={{ padding: 24, gap: 20 }}>
+            <Text style={{ fontSize: 14, color: "#6b7280" }}>
+              新しいメールアドレスに確認メールが送信されます。メール内のリンクをクリックして変更を完了してください。
+            </Text>
+            <View>
+              <Text style={{ fontSize: 14, fontWeight: "500", color: "#374151", marginBottom: 6 }}>
+                新しいメールアドレス
+              </Text>
+              <TextInput
+                value={newEmail}
+                onChangeText={setNewEmail}
+                placeholder="example@email.com"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                style={{
+                  borderWidth: 1,
+                  borderColor: "#d1d5db",
+                  borderRadius: 8,
+                  paddingHorizontal: 12,
+                  paddingVertical: 10,
+                  fontSize: 16,
+                }}
+              />
+            </View>
+
+            <TouchableOpacity
+              onPress={handleChangeEmail}
+              disabled={isChangingEmail}
+              style={{
+                backgroundColor: "#ea580c",
+                borderRadius: 8,
+                paddingVertical: 14,
+                alignItems: "center",
+                opacity: isChangingEmail ? 0.7 : 1,
+                marginTop: 8,
+              }}
+            >
+              {isChangingEmail ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={{ color: "#fff", fontSize: 16, fontWeight: "600" }}>
+                  確認メールを送信
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
 
       {/* Change Password Modal */}
       <Modal
