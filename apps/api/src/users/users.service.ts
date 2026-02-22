@@ -61,6 +61,14 @@ export class UsersService {
     return users;
   }
 
+  async updatePassword(userId: number, newPassword: string) {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await this.prisma.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+  }
+
   async deleteUser(id: number) {
     // ユーザーが存在するかチェック
     const user = await this.prisma.prisma.user.findUnique({

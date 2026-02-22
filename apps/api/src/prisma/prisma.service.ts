@@ -11,6 +11,7 @@ interface PrismaClientType {
   ingredientSet: any;
   recipe: any;
   emailVerificationToken: any;
+  passwordResetToken: any;
   $connect: () => Promise<void>;
   $disconnect: () => Promise<void>;
 }
@@ -53,6 +54,12 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
           delete: async () => null,
         },
         emailVerificationToken: {
+          findUnique: async () => null,
+          create: async () => null,
+          delete: async () => null,
+          deleteMany: async () => null,
+        },
+        passwordResetToken: {
           findUnique: async () => null,
           create: async () => null,
           delete: async () => null,

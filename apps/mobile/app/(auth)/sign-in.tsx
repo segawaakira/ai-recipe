@@ -156,6 +156,16 @@ export default function SignInScreen() {
             />
           </View>
 
+          <View style={{ alignItems: "flex-end" }}>
+            <Link href="/(auth)/forgot-password" asChild>
+              <TouchableOpacity>
+                <Text style={{ color: "#ea580c", fontSize: 13, fontWeight: "500" }}>
+                  パスワードを忘れた方
+                </Text>
+              </TouchableOpacity>
+            </Link>
+          </View>
+
           <TouchableOpacity
             onPress={handleSignIn}
             disabled={isLoading}

@@ -118,6 +118,11 @@ export default function SignIn() {
               )}
             </div>
           </div>
+          <div className="text-right">
+            <a href="/auth/forgot-password" className="text-sm text-orange-600 hover:text-orange-700 font-medium cursor-pointer">
+              パスワードを忘れた方
+            </a>
+          </div>
           <Button type="submit" disabled={isSubmitting} className="w-full bg-orange-600 hover:bg-orange-700 cursor-pointer">
             {isSubmitting ? "ログイン中..." : "ログイン"}
           </Button>

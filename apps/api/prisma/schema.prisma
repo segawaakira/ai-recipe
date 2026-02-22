@@ -16,9 +16,18 @@ model User {
   ingredientSets          IngredientSet[]
   recipes                 Recipe[]
   emailVerificationTokens EmailVerificationToken[]
+  passwordResetTokens     PasswordResetToken[]
 }
 
 model EmailVerificationToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  expiresAt DateTime
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PasswordResetToken {
   id        Int      @id @default(autoincrement())
   token     String   @unique
   expiresAt DateTime

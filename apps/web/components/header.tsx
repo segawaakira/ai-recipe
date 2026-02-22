@@ -1,7 +1,16 @@
 "use client";
 
 import { apiClient } from "@/lib/api-client";
+import { createAuthClient } from "@/lib/auth-api-client";
+import { ChangePasswordInput, type ChangePasswordInputType } from "@repo/api-schema";
 import { Button } from "@repo/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@repo/ui/components/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,17 +19,45 @@ import {
   DropdownMenuTrigger,
 } from "@repo/ui/components/dropdown-menu";
 import { useToast } from "@repo/ui/hooks/use-toast";
-import { Clock, LogOut, Menu, UserX } from "lucide-react";
+import { Clock, KeyRound, LogOut, Menu, UserX } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { ConfirmDialog } from "./confirm-dialog";
+import { PasswordInput } from "./password-input";
+
+const ChangePasswordForm = ChangePasswordInput.extend({
+  confirmPassword: z.string(),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "パスワードが一致しません",
+  path: ["confirmPassword"],
+});
+
+type ChangePasswordFormType = z.infer<typeof ChangePasswordForm>;
 
 export function Header() {
   const { data: session } = useSession();
   const { toast } = useToast();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+
+  const authClient = useMemo(
+    () => session?.accessToken ? createAuthClient(session.accessToken) : null,
+    [session?.accessToken]
+  );
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<ChangePasswordFormType>({
+    resolver: zodResolver(ChangePasswordForm),
+  });
 
   const handleLogout = () => {
     signOut();
@@ -56,6 +93,33 @@ export function Header() {
     }
   };
 
+  const handleChangePassword = async (data: ChangePasswordFormType) => {
+    if (!authClient) {
+      toast.error("ログインが必要です");
+      return;
+    }
+
+    try {
+      const { error } = await authClient.POST("/auth/change-password", {
+        body: {
+          currentPassword: data.currentPassword,
+          newPassword: data.newPassword,
+        },
+      });
+
+      if (error) {
+        toast.error("現在のパスワードが正しくありません");
+        return;
+      }
+
+      toast.success("パスワードを変更しました");
+      setShowChangePassword(false);
+      reset();
+    } catch {
+      toast.error("エラーが発生しました");
+    }
+  };
+
   return (
     <div className="px-4 bg-white shadow-sm border-b">
       <header className="max-w-md mx-auto py-3 flex justify-between items-center">
@@ -87,6 +151,13 @@ export function Header() {
                     <Clock className="h-4 w-4 mr-2" />
                     レシピ提案履歴
                   </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setShowChangePassword(true)}
+                  className="cursor-pointer"
+                >
+                  <KeyRound className="h-4 w-4 mr-2" />
+                  パスワード変更
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                   <LogOut className="h-4 w-4 mr-2" />
@@ -121,6 +192,69 @@ export function Header() {
         description="本当にアカウントを削除しますか？この操作は取り消せません。"
         onConfirm={handleDeleteAccount}
       />
+
+      <Dialog open={showChangePassword} onOpenChange={(open) => {
+        setShowChangePassword(open);
+        if (!open) reset();
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>パスワード変更</DialogTitle>
+            <DialogDescription>
+              現在のパスワードと新しいパスワードを入力してください
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit(handleChangePassword)} className="space-y-4">
+            <div>
+              <PasswordInput
+                {...register("currentPassword")}
+                placeholder="現在のパスワード"
+              />
+              {errors.currentPassword && (
+                <p className="mt-1 text-sm text-red-600">{errors.currentPassword.message}</p>
+              )}
+            </div>
+            <div>
+              <PasswordInput
+                {...register("newPassword")}
+                placeholder="新しいパスワード"
+              />
+              {errors.newPassword && (
+                <p className="mt-1 text-sm text-red-600">{errors.newPassword.message}</p>
+              )}
+            </div>
+            <div>
+              <PasswordInput
+                {...register("confirmPassword")}
+                placeholder="新しいパスワード（確認）"
+              />
+              {errors.confirmPassword && (
+                <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
+              )}
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setShowChangePassword(false);
+                  reset();
+                }}
+                className="cursor-pointer"
+              >
+                キャンセル
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-orange-600 hover:bg-orange-700 cursor-pointer"
+              >
+                {isSubmitting ? "変更中..." : "変更する"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
