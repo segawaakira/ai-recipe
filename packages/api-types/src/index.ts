@@ -1,1 +1,1 @@
-export type { paths, operations } from "./api";
+export type { paths, operations, components } from "./api";

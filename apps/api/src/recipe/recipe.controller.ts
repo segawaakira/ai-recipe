@@ -14,7 +14,7 @@ import { RecipeService } from './recipe.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeRatingDto } from './dto/update-recipe-rating.dto';
 import { PaginatedRecipeResponseDto } from './dto/paginated-recipe-response.dto';
-import { RecipeResponseDto } from './dto/recipe-response.dto';
+import { RecipeResponseDto, RatedRecipeResponseDto } from './dto/recipe-response.dto';
 import { CurrentUser } from '../auth/current-user.decorator';
 
 @ApiTags('recipes')
@@ -57,6 +57,7 @@ export class RecipeController {
 
   @Get('rated')
   @ApiOperation({ summary: 'Get rated recipes for prompt context' })
+  @ApiResponse({ status: 200, type: [RatedRecipeResponseDto] })
   @ApiQuery({ name: 'limit', type: Number, required: false })
   async getRatedRecipes(
     @CurrentUser() user: { userId: number; email: string },

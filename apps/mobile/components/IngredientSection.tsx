@@ -120,9 +120,9 @@ export function IngredientSection({
         const results: Array<{
           name: string;
           isFood: boolean;
-          similarTo?: string;
+          similarTo?: string | null;
           isDuplicate?: boolean;
-        }> = (data as { results: Array<{ name: string; isFood: boolean; similarTo?: string; isDuplicate?: boolean }> }).results || [];
+        }> = data.results || [];
 
         const hasProblems = results.some(
           (r) => !r.isFood || r.similarTo || r.isDuplicate

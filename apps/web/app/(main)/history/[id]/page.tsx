@@ -19,18 +19,9 @@ import { StarRating } from "components/star-rating";
 import { YouTubeVideos } from "components/youtube-videos";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
+import type { components } from "@repo/api-types";
 
-interface Recipe {
-  id: number;
-  name: string;
-  content: string;
-  ingredients: string[];
-  servings: number;
-  genre: string | null;
-  youtubeVideos: { videoId: string; title: string; channelTitle: string; thumbnail: string }[] | null;
-  rating: number | null;
-  createdAt: string;
-}
+type Recipe = components["schemas"]["RecipeResponseDto"];
 
 export default function RecipeDetailPage() {
   const { data: session } = useSession();
@@ -58,7 +49,7 @@ export default function RecipeDetailPage() {
         if (error || !data) {
           setNotFound(true);
         } else {
-          setRecipe(data as Recipe);
+          setRecipe(data);
         }
       } catch {
         setNotFound(true);
@@ -104,7 +95,7 @@ export default function RecipeDetailPage() {
                     {new Date(recipe.createdAt).toLocaleDateString("ja-JP")}
                   </div>
                   <StarRating
-                    rating={recipe.rating}
+                    rating={recipe.rating ?? null}
                     onRate={async (rating) => {
                       try {
                         if (authClient) {

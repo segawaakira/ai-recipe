@@ -29,6 +29,7 @@ import { Pagination } from "components/pagination";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import type { components } from "@repo/api-types";
 
 const RecipeSearchInput = z.object({
   search: z.string(),
@@ -36,16 +37,7 @@ const RecipeSearchInput = z.object({
 });
 type RecipeSearchInputType = z.infer<typeof RecipeSearchInput>;
 
-interface RecipeHistoryItem {
-  id: number;
-  name: string;
-  content: string;
-  ingredients: string[];
-  servings: number;
-  youtubeVideos: { videoId: string; title: string; channelTitle: string; thumbnail: string }[] | null;
-  rating: number | null;
-  createdAt: string;
-}
+type RecipeHistoryItem = components["schemas"]["RecipeResponseDto"];
 
 export default function HistoryPage() {
   const { data: session, status: sessionStatus } = useSession();
@@ -117,7 +109,7 @@ export default function HistoryPage() {
         },
       });
       if (data) {
-        setRecipeHistory(data.items as RecipeHistoryItem[]);
+        setRecipeHistory(data.items);
         setTotal(data.total);
       }
     } catch (error) {

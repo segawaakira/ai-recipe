@@ -207,10 +207,9 @@ export function ImageUploadArea({
         throw new Error("API request failed");
       }
 
-      if ((data as { ingredients?: string[] }).ingredients && (data as { ingredients: string[] }).ingredients.length > 0) {
-        const ingredients = (data as { ingredients: string[] }).ingredients;
-        setRecognizedIngredients(ingredients);
-        setSelectedIngredients(ingredients);
+      if (data.ingredients && data.ingredients.length > 0) {
+        setRecognizedIngredients(data.ingredients);
+        setSelectedIngredients(data.ingredients);
       } else {
         setError("食材を認識できませんでした。別の画像をお試しください。");
       }

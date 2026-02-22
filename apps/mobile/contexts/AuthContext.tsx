@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error || !data) {
       throw new Error("ログインに失敗しました");
     }
-    const accessToken = (data as { accessToken: string }).accessToken;
+    const accessToken = data.accessToken;
     await saveToken(accessToken);
     setToken(accessToken);
     const payload = decodeToken(accessToken);
@@ -86,12 +86,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const deleteAccount = useCallback(async () => {
-    if (!token) return;
+    if (!token || !user) return;
     const { createAuthClient } = await import("@/lib/auth-api-client");
     const authClient = createAuthClient(token);
-    await authClient.DELETE("/users");
+    await authClient.DELETE("/users", {
+      body: { id: user.userId },
+    });
     await signOut();
-  }, [token, signOut]);
+  }, [token, user, signOut]);
 
   const resendVerification = useCallback(async (email: string) => {
     await apiClient.POST("/auth/resend-verification", {

@@ -16,23 +16,9 @@ import { StarRating } from "@/components/StarRating";
 import { YouTubeVideos } from "@/components/YouTubeVideos";
 import { RecipeMeta } from "@/components/RecipeMeta";
 import { showConfirmDialog } from "@/components/ConfirmDialog";
+import type { components } from "@repo/api-types";
 
-interface Recipe {
-  id: number;
-  name: string;
-  content: string;
-  ingredients: string[];
-  servings: number;
-  genre: string | null;
-  youtubeVideos: {
-    videoId: string;
-    title: string;
-    channelTitle: string;
-    thumbnail: string;
-  }[] | null;
-  rating: number | null;
-  createdAt: string;
-}
+type Recipe = components["schemas"]["RecipeResponseDto"];
 
 const markdownStyles = {
   body: { fontSize: 14, color: "#374151", lineHeight: 22 },
@@ -68,7 +54,7 @@ export default function RecipeDetailScreen() {
         if (error || !data) {
           setNotFound(true);
         } else {
-          setRecipe(data as Recipe);
+          setRecipe(data);
         }
       } catch {
         setNotFound(true);
@@ -166,11 +152,11 @@ export default function RecipeDetailScreen() {
               {new Date(recipe.createdAt).toLocaleDateString("ja-JP")}
             </Text>
           </View>
-          <StarRating rating={recipe.rating} onRate={handleRate} />
+          <StarRating rating={recipe.rating ?? null} onRate={handleRate} />
         </View>
 
         {/* Meta */}
-        <RecipeMeta ingredients={recipe.ingredients} genre={recipe.genre} />
+        <RecipeMeta ingredients={recipe.ingredients} genre={recipe.genre ?? null} />
 
         {/* Content */}
         <View

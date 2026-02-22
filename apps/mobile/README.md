@@ -173,3 +173,36 @@ npx expo install <package-name>
 ## 環境変数
 
 `.env.example` を `.env` にコピーして設定する。
+
+---
+
+## ローカル開発
+
+`pnpm dev`で、モバイルも立ち上がるので、mobile#devの中で、
+`i` で、iOS
+`a` で、Android
+のシミュレータが立ち上がるので、それで開発する。
+
+---
+
+## 実機確認の方法
+
+- ExpoのPreview buildを行う
+
+```
+eas build --platform all --profile preview
+```
+
+- https://expo.dev/にログインし、ビルドの詳細ページから、Installボタンをクリックし、それぞれのデバイスで、QRコードを読み込んで、アプリをインストールする。
+    ※iOSは、`設定 > プライバシーとセキュリティ > デベロッパモード`を`オン`にする必要がある。
+
+
+---
+
+## 公開用Build
+
+```
+eas build --platform all
+```
+
+TBD

@@ -71,9 +71,8 @@ export function ImageUploadArea({ onIngredientsRecognized, token }: ImageUploadA
         body: { image: base64 },
       });
       if (apiError || !data) throw new Error("認識に失敗しました");
-      const ingredients = (data as { ingredients: string[] }).ingredients;
-      if (ingredients && ingredients.length > 0) {
-        onIngredientsRecognized(ingredients);
+      if (data.ingredients && data.ingredients.length > 0) {
+        onIngredientsRecognized(data.ingredients);
       } else {
         Alert.alert("認識結果", "食材を認識できませんでした");
       }

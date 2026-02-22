@@ -1,3 +1,45 @@
+# AI Recipe
+
+AI を活用したレシピ提案アプリ。
+
+## プロジェクト構成
+
+```
+ai-recipe/
+├── apps/
+│   ├── api/          # バックエンド (NestJS)
+│   ├── web/          # Web フロントエンド (Next.js)
+│   └── mobile/       # モバイル (Expo / React Native)
+├── packages/
+│   ├── api-types/    # OpenAPI 生成型 (paths, operations)
+│   ├── api-schema/   # 共有バリデーションスキーマ (Zod)
+│   ├── ui/           # 共有 UI コンポーネント
+│   ├── typescript-config/
+│   └── eslint-config/
+└── package.json
+```
+
+## API 型共有の仕組み
+
+API のレスポンス型は NestJS の DTO デコレーターから自動生成され、Web・Mobile の両方で型安全に利用できます。
+
+```
+NestJS DTO (@ApiResponse, @ApiProperty)
+  ↓  pnpm --filter api generate:openapi
+apps/api/openapi.json
+  ↓  pnpm --filter @repo/api-types generate (openapi-typescript)
+packages/api-types/src/api.d.ts   ← paths, operations の型定義
+  ↓  workspace 参照 (@repo/api-types)
+apps/web  &  apps/mobile          ← createClient<paths>() で型推論
+```
+
+**API の DTO やエンドポイントを変更した場合**は、モノレポルートで以下を実行してください：
+
+```bash
+pnpm generate:api
+```
+
+これにより openapi.json の再生成 → TypeScript 型の再生成が一括で行われ、フロントエンド側の型が最新になります。
 
 ### ローカル環境セットアップ
 
