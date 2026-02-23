@@ -1,6 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiQuery, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { YouTubeService } from './youtube.service';
+import { YouTubeSearchQueryDto } from './dto/youtube-search-query.dto';
 import { YouTubeSearchResponseDto } from './dto/youtube-search-response.dto';
 
 @ApiTags('youtube')
@@ -11,10 +12,9 @@ export class YouTubeController {
 
   @Get('search')
   @ApiOperation({ summary: 'Search YouTube videos' })
-  @ApiQuery({ name: 'q', type: String })
   @ApiResponse({ status: 200, description: 'List of YouTube videos', type: YouTubeSearchResponseDto })
-  async search(@Query('q') query: string) {
-    const videos = await this.youtubeService.search(query);
+  async search(@Query() query: YouTubeSearchQueryDto) {
+    const videos = await this.youtubeService.search(query.q);
     return { videos };
   }
 }

@@ -7,6 +7,8 @@ import { RecognizeIngredientsDto } from './dto/recognize-ingredients.dto';
 import { RecognizeIngredientsResponseDto } from './dto/recognize-ingredients-response.dto';
 import { ValidateIngredientsDto } from './dto/validate-ingredients.dto';
 import { ValidateIngredientsResponseDto } from './dto/validate-ingredients-response.dto';
+import { FollowUpRecipeDto } from './dto/follow-up-recipe.dto';
+import { FollowUpRecipeResponseDto } from './dto/follow-up-recipe-response.dto';
 
 @ApiTags('gemini')
 @ApiBearerAuth()
@@ -18,13 +20,10 @@ export class GeminiController {
   @ApiOperation({ summary: 'Generate a recipe using Gemini AI' })
   @ApiResponse({ status: 201, description: 'Recipe generated', type: GenerateRecipeResponseDto })
   async generateRecipe(@Body() body: GenerateRecipeDto) {
-    const preferred = body.preferredIngredients || body.ingredients || [];
-    const all = body.allIngredients || [];
-    const servings = body.servings || 2;
     return this.geminiService.generateRecipe(
-      preferred,
-      all,
-      servings,
+      body.preferredIngredients,
+      body.allIngredients,
+      body.servings,
       body.ratedRecipes,
       body.genre,
     );
@@ -44,6 +43,17 @@ export class GeminiController {
     return this.geminiService.validateIngredients(
       body.newIngredients,
       body.existingIngredients,
+    );
+  }
+
+  @Post('follow-up-recipe')
+  @ApiOperation({ summary: 'Follow-up question about a generated recipe' })
+  @ApiResponse({ status: 201, description: 'Follow-up reply generated', type: FollowUpRecipeResponseDto })
+  async followUpRecipe(@Body() body: FollowUpRecipeDto) {
+    return this.geminiService.followUpRecipe(
+      body.recipeContent,
+      body.recipeName,
+      body.message,
     );
   }
 }

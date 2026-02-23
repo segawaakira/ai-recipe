@@ -25,6 +25,7 @@ export default function HomeScreen() {
   const [recipeGenre, setRecipeGenre] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasIngredients, setHasIngredients] = useState(false);
+  const [isFollowUpLoading, setIsFollowUpLoading] = useState(false);
 
   const generateRecipe = useCallback(
     async (params: {
@@ -116,6 +117,48 @@ export default function HomeScreen() {
     [authClient]
   );
 
+  const sendFollowUp = useCallback(
+    async (message: string) => {
+      if (!authClient || !recipe || !recipeName) return;
+
+      setIsFollowUpLoading(true);
+
+      try {
+        const { data, error } = await authClient.POST("/gemini/follow-up-recipe", {
+          body: {
+            recipeContent: recipe,
+            recipeName,
+            message,
+          },
+        });
+
+        if (error || !data) throw new Error("アレンジに失敗しました");
+
+        setRecipe(data.recipe);
+        setRecipeName(data.recipeName);
+
+        // Update recipe in DB
+        if (savedRecipeId) {
+          try {
+            await authClient.PATCH("/recipes/{id}/content", {
+              params: { path: { id: String(savedRecipeId) } },
+              body: { name: data.recipeName, content: data.recipe },
+            });
+          } catch {
+            console.error("Failed to update recipe content");
+          }
+        }
+
+        Alert.alert("完了", "レシピをアレンジしました");
+      } catch {
+        Alert.alert("エラー", "アレンジに失敗しました。もう一度お試しください。");
+      } finally {
+        setIsFollowUpLoading(false);
+      }
+    },
+    [authClient, recipe, recipeName, savedRecipeId]
+  );
+
   if (!token) return null;
 
   return (
@@ -139,6 +182,8 @@ export default function HomeScreen() {
           recipeRating={recipeRating}
           recipeIngredients={recipeIngredients}
           recipeGenre={recipeGenre}
+          isFollowUpLoading={isFollowUpLoading}
+          onSendFollowUp={sendFollowUp}
           onRate={async (rating) => {
             setRecipeRating(rating);
             try {

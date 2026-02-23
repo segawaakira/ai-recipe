@@ -113,9 +113,7 @@ export function IngredientSection({
       } catch (error) {
         console.error("Failed to fetch ingredients:", error);
       } finally {
-        setTimeout(() => {
-          setIsFetchedIngredients(true);
-        }, 1000);
+        setIsFetchedIngredients(true);
       }
     };
 

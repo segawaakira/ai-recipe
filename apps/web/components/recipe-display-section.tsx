@@ -12,6 +12,7 @@ import { UtensilsCrossed } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
 import { LoadingAnimation } from "components/loading-animation";
+import { RecipeFollowUp } from "components/recipe-follow-up";
 import { RecipeMeta } from "components/recipe-meta";
 import { StarRating } from "components/star-rating";
 import { YouTubeVideos } from "components/youtube-videos";
@@ -33,6 +34,8 @@ interface RecipeDisplaySectionProps {
   recipeGenre: string;
   isGenerating: boolean;
   onRate: (rating: number) => Promise<void>;
+  isFollowUpLoading: boolean;
+  onSendFollowUp: (message: string) => void;
 }
 
 export function RecipeDisplaySection({
@@ -45,6 +48,8 @@ export function RecipeDisplaySection({
   recipeGenre,
   isGenerating,
   onRate,
+  isFollowUpLoading,
+  onSendFollowUp,
 }: RecipeDisplaySectionProps) {
   return (
     <Card className="w-full">
@@ -67,7 +72,7 @@ export function RecipeDisplaySection({
         )}
       </CardHeader>
       <CardContent>
-        {recipe ? (
+        {recipe && !isFollowUpLoading ? (
           <div className="space-y-4">
             <div className="markdown-content">
               <ReactMarkdown>{recipe}</ReactMarkdown>
@@ -88,6 +93,12 @@ export function RecipeDisplaySection({
                 )}
               </>
             )}
+            {recipeName && !isGenerating && (
+              <RecipeFollowUp
+                isLoading={isFollowUpLoading}
+                onSend={onSendFollowUp}
+              />
+            )}
             {recipeName && (
               <YouTubeVideos
                 videos={youtubeVideos}
@@ -95,10 +106,10 @@ export function RecipeDisplaySection({
               />
             )}
           </div>
-        ) : isGenerating ? (
+        ) : isGenerating || isFollowUpLoading ? (
           <div className="flex flex-col items-center py-12 text-gray-500">
             <LoadingAnimation />
-            <p className="mt-8 text-sm">レシピを生成中...</p>
+            <p className="mt-8 text-sm">{isFollowUpLoading ? "レシピをアレンジ中..." : "レシピを生成中..."}</p>
           </div>
         ) : (
           <div className="text-center py-12 text-gray-500">

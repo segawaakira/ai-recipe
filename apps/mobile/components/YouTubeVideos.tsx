@@ -15,8 +15,6 @@ interface YouTubeVideosProps {
 }
 
 export function YouTubeVideos({ videos, recipeName }: YouTubeVideosProps) {
-  if (videos.length === 0) return null;
-
   const openVideo = async (videoId: string) => {
     await WebBrowser.openBrowserAsync(`https://www.youtube.com/watch?v=${videoId}`);
   };
@@ -30,7 +28,11 @@ export function YouTubeVideos({ videos, recipeName }: YouTubeVideosProps) {
         </Text>
       </View>
 
-      {videos.map((video) => (
+      {videos.length === 0 ? (
+        <Text style={{ fontSize: 14, color: "#6b7280" }}>
+          関連YouTubeレシピ動画はありません
+        </Text>
+      ) : videos.map((video) => (
         <TouchableOpacity
           key={video.videoId}
           onPress={() => openVideo(video.videoId)}
@@ -66,3 +68,4 @@ export function YouTubeVideos({ videos, recipeName }: YouTubeVideosProps) {
     </View>
   );
 }
+

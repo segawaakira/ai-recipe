@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNotEmpty } from 'class-validator';
 
-export class RecognizeIngredientsDto {
+export class YouTubeSearchQueryDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  image: string;
+  q: string;
 }

@@ -449,6 +449,52 @@
         ]
       }
     },
+    "/recipes/{id}/content": {
+      "patch": {
+        "operationId": "RecipeController_updateContent",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRecipeContentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Recipe content updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecipeResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update recipe name and content",
+        "tags": [
+          "recipes"
+        ]
+      }
+    },
     "/youtube/search": {
       "get": {
         "operationId": "YouTubeController_search",
@@ -591,6 +637,43 @@
           }
         ],
         "summary": "Validate ingredients using Gemini AI",
+        "tags": [
+          "gemini"
+        ]
+      }
+    },
+    "/gemini/follow-up-recipe": {
+      "post": {
+        "operationId": "GeminiController_followUpRecipe",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FollowUpRecipeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Follow-up reply generated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FollowUpRecipeResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Follow-up question about a generated recipe",
         "tags": [
           "gemini"
         ]
@@ -1163,6 +1246,23 @@
           "rating"
         ]
       },
+      "UpdateRecipeContentDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "減塩トマトパスタ"
+          },
+          "content": {
+            "type": "string",
+            "example": "## 材料（2人分）\n..."
+          }
+        },
+        "required": [
+          "name",
+          "content"
+        ]
+      },
       "YouTubeSearchResponseDto": {
         "type": "object",
         "properties": {
@@ -1207,12 +1307,6 @@
               "type": "string"
             }
           },
-          "ingredients": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
           "servings": {
             "type": "number"
           },
@@ -1225,7 +1319,12 @@
               "$ref": "#/components/schemas/RatedRecipeDto"
             }
           }
-        }
+        },
+        "required": [
+          "preferredIngredients",
+          "allIngredients",
+          "servings"
+        ]
       },
       "GenerateRecipeResponseDto": {
         "type": "object",
@@ -1330,6 +1429,45 @@
         },
         "required": [
           "results"
+        ]
+      },
+      "FollowUpRecipeDto": {
+        "type": "object",
+        "properties": {
+          "recipeContent": {
+            "type": "string",
+            "example": "## 材料（2人分）\n..."
+          },
+          "recipeName": {
+            "type": "string",
+            "example": "トマトパスタ"
+          },
+          "message": {
+            "type": "string",
+            "example": "減塩バージョンにしてください"
+          }
+        },
+        "required": [
+          "recipeContent",
+          "recipeName",
+          "message"
+        ]
+      },
+      "FollowUpRecipeResponseDto": {
+        "type": "object",
+        "properties": {
+          "recipe": {
+            "type": "string",
+            "example": "## 材料（2人分）\n..."
+          },
+          "recipeName": {
+            "type": "string",
+            "example": "減塩トマトパスタ"
+          }
+        },
+        "required": [
+          "recipe",
+          "recipeName"
         ]
       },
       "LoginDto": {
