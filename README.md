@@ -41,6 +41,19 @@ pnpm generate:api
 
 これにより openapi.json の再生成 → TypeScript 型の再生成が一括で行われ、フロントエンド側の型が最新になります。
 
+## 利用している外部サービス
+
+| サービス | 用途 |
+|---|---|
+| [Google Gemini API](https://ai.google.dev/) | レシピ生成・食材画像認識・食材バリデーション (gemini-2.0-flash) |
+| [YouTube Data API v3](https://developers.google.com/youtube/v3) | 生成したレシピに関連する調理動画の検索 |
+| Gmail SMTP | メールアドレス確認・パスワードリセット等の通知メール送信 |
+| [PostgreSQL](https://www.postgresql.org/) | ユーザー・レシピ履歴・食材セットのデータ永続化 (ローカルは Docker、本番は Render) |
+| [Vercel](https://vercel.com/) | Web フロントエンド (Next.js) のホスティング |
+| [Render](https://render.com/) | バックエンド API (NestJS) と PostgreSQL のホスティング |
+| [Expo Application Services (EAS)](https://expo.dev/eas) | モバイルアプリのビルド・配信 |
+| [GitHub Actions](https://github.com/features/actions) | CI (テスト・ビルドの自動実行) |
+
 ### ローカル環境セットアップ
 
 1. 環境変数の設定
