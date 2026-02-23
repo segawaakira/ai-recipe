@@ -1307,12 +1307,6 @@
               "type": "string"
             }
           },
-          "ingredients": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
           "servings": {
             "type": "number"
           },
@@ -1325,7 +1319,12 @@
               "$ref": "#/components/schemas/RatedRecipeDto"
             }
           }
-        }
+        },
+        "required": [
+          "preferredIngredients",
+          "allIngredients",
+          "servings"
+        ]
       },
       "GenerateRecipeResponseDto": {
         "type": "object",

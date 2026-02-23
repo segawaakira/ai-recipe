@@ -9,11 +9,13 @@ import {
   Param,
   NotFoundException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { RecipeService } from './recipe.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeRatingDto } from './dto/update-recipe-rating.dto';
 import { UpdateRecipeContentDto } from './dto/update-recipe-content.dto';
+import { GetRecipesQueryDto } from './dto/get-recipes-query.dto';
+import { GetRatedRecipesQueryDto } from './dto/get-rated-recipes-query.dto';
 import { PaginatedRecipeResponseDto } from './dto/paginated-recipe-response.dto';
 import { RecipeResponseDto, RatedRecipeResponseDto } from './dto/recipe-response.dto';
 import { CurrentUser } from '../auth/current-user.decorator';
@@ -36,37 +38,29 @@ export class RecipeController {
 
   @Get()
   @ApiOperation({ summary: 'Get recipes by user ID' })
-  @ApiQuery({ name: 'page', type: Number, required: false })
-  @ApiQuery({ name: 'perPage', type: Number, required: false })
-  @ApiQuery({ name: 'search', type: String, required: false })
-  @ApiQuery({ name: 'ratingFilter', type: Number, required: false })
   @ApiResponse({ status: 200, description: 'Paginated list of recipes', type: PaginatedRecipeResponseDto })
   async findByUserId(
     @CurrentUser() user: { userId: number; email: string },
-    @Query('page') page?: number,
-    @Query('perPage') perPage?: number,
-    @Query('search') search?: string,
-    @Query('ratingFilter') ratingFilter?: string,
+    @Query() query: GetRecipesQueryDto,
   ) {
     return this.recipeService.findByUserId(user.userId, {
-      page: page ? Number(page) : undefined,
-      perPage: perPage ? Number(perPage) : undefined,
-      search: search || undefined,
-      ratingFilter: ratingFilter ? Number(ratingFilter) : undefined,
+      page: query.page,
+      perPage: query.perPage,
+      search: query.search || undefined,
+      ratingFilter: query.ratingFilter,
     });
   }
 
   @Get('rated')
   @ApiOperation({ summary: 'Get rated recipes for prompt context' })
   @ApiResponse({ status: 200, type: [RatedRecipeResponseDto] })
-  @ApiQuery({ name: 'limit', type: Number, required: false })
   async getRatedRecipes(
     @CurrentUser() user: { userId: number; email: string },
-    @Query('limit') limit?: number,
+    @Query() query: GetRatedRecipesQueryDto,
   ) {
     return this.recipeService.getRatedRecipes(
       user.userId,
-      limit ? Number(limit) : 10,
+      query.limit ?? 10,
     );
   }
 

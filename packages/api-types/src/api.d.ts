@@ -528,10 +528,9 @@ export interface components {
             rating: number;
         };
         GenerateRecipeDto: {
-            preferredIngredients?: string[];
-            allIngredients?: string[];
-            ingredients?: string[];
-            servings?: number;
+            preferredIngredients: string[];
+            allIngredients: string[];
+            servings: number;
             genre?: string;
             ratedRecipes?: components["schemas"]["RatedRecipeDto"][];
         };

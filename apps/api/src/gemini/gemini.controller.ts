@@ -20,13 +20,10 @@ export class GeminiController {
   @ApiOperation({ summary: 'Generate a recipe using Gemini AI' })
   @ApiResponse({ status: 201, description: 'Recipe generated', type: GenerateRecipeResponseDto })
   async generateRecipe(@Body() body: GenerateRecipeDto) {
-    const preferred = body.preferredIngredients || body.ingredients || [];
-    const all = body.allIngredients || [];
-    const servings = body.servings || 2;
     return this.geminiService.generateRecipe(
-      preferred,
-      all,
-      servings,
+      body.preferredIngredients,
+      body.allIngredients,
+      body.servings,
       body.ratedRecipes,
       body.genre,
     );

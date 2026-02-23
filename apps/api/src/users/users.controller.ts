@@ -13,20 +13,8 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
-import { z } from 'zod';
 import { Public } from '../auth/public.decorator';
 import { EmailVerificationService } from '../email/email-verification.service';
-
-const CreateUserInput = z.object({
-  email: z.string().email(),
-  password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters long')
-    .regex(
-      /^(?=.*[a-zA-Z])(?=.*\d)[A-Za-z\d]{8,}$/,
-      'Password must contain both letters and numbers',
-    ),
-});
 
 @ApiTags('users')
 @Controller('users')
