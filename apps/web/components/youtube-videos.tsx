@@ -37,7 +37,7 @@ export function YouTubeVideos({ videos, recipeName }: YouTubeVideosProps) {
         </div>
       )}
 
-      {videos.length > 0 && (
+      {videos.length > 0 ? (
         <div className="space-y-2">
           {videos.map((video) => (
             <button
@@ -70,6 +70,8 @@ export function YouTubeVideos({ videos, recipeName }: YouTubeVideosProps) {
             </button>
           ))}
         </div>
+      ) : (
+        <p className="text-sm text-gray-500">関連YouTubeレシピ動画はありません</p>
       )}
 
       <a

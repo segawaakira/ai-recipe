@@ -1,6 +1,5 @@
 "use client";
 
-import { Skeleton } from "@repo/ui/components/skeleton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -11,6 +10,7 @@ import {
   CardTitle,
 } from "@repo/ui/components/card";
 import { Input } from "@repo/ui/components/input";
+import { Skeleton } from "@repo/ui/components/skeleton";
 import {
   Table,
   TableBody,
@@ -25,11 +25,11 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { createAuthClient } from "@/lib/auth-api-client";
+import type { components } from "@repo/api-types";
 import { Pagination } from "components/pagination";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import type { components } from "@repo/api-types";
 
 const RecipeSearchInput = z.object({
   search: z.string(),
@@ -115,9 +115,7 @@ export default function HistoryPage() {
     } catch (error) {
       console.error("Failed to fetch recipe history:", error);
     } finally {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 1000);
+      setIsLoading(false);
     }
   }, [authClient, perPage]);
 
