@@ -54,49 +54,9 @@ pnpm generate:api
 | [Expo Application Services (EAS)](https://expo.dev/eas) | モバイルアプリのビルド・配信 |
 | [GitHub Actions](https://github.com/features/actions) | CI (テスト・ビルドの自動実行) |
 
-### ローカル環境セットアップ
+---
 
-1. 環境変数の設定
-
-   ```bash
-   cd apps/api
-   cp .env.example .env
-   ```
-
-   ```bash
-   cd apps/web
-   cp .env.example .env
-   ```
-
-    ※コピーした後の.envにapiKeyや、認証情報は任意のものを入れる。
-
-2. パッケージインストール
-
-   ```bash
-   pnpm install
-   ```
-
-3. Dockerセットアップ
-
-   ```bash
-   docker-compose up
-   ```
-
-4. Prisma client生成
-
-   ```bash
-   cd apps/api
-   pnpm prisma generate
-   ```
-
-5. Database migration実行
-
-   ```bash
-   cd apps/api
-   pnpm prisma migrate dev --name init
-   ```
-
-6. 起動
-   ```bash
-   pnpm dev
-   ```
+- [ローカル環境セットアップ](./SETUP.md) 
+- [API](./apps/api/README.md)
+- [WEB](./apps/web/README.md)
+- [MOBILE](./apps/mobile/README.md)
