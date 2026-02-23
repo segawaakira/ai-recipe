@@ -31,6 +31,7 @@ export default function RecipeApp() {
   const [recipeGenre, setRecipeGenre] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasIngredients, setHasIngredients] = useState(false);
+  const [isFollowUpLoading, setIsFollowUpLoading] = useState(false);
 
   const generateRecipe = async (params: {
     selectedIngredients: string[];
@@ -119,6 +120,45 @@ export default function RecipeApp() {
     }
   };
 
+  const sendFollowUp = async (message: string) => {
+    if (!authClient || !recipe || !recipeName) return;
+
+    setIsFollowUpLoading(true);
+
+    try {
+      const { data, error } = await authClient.POST("/gemini/follow-up-recipe", {
+        body: {
+          recipeContent: recipe,
+          recipeName,
+          message,
+        },
+      });
+
+      if (error || !data) throw new Error("アレンジに失敗しました");
+
+      setRecipe(data.recipe);
+      setRecipeName(data.recipeName);
+
+      // Update recipe in DB
+      if (savedRecipeId) {
+        try {
+          await authClient.PATCH("/recipes/{id}/content", {
+            params: { path: { id: String(savedRecipeId) } },
+            body: { name: data.recipeName, content: data.recipe },
+          });
+        } catch {
+          console.error("Failed to update recipe content");
+        }
+      }
+
+      toast.success("レシピをアレンジしました");
+    } catch {
+      toast.error("アレンジに失敗しました。もう一度お試しください。");
+    } finally {
+      setIsFollowUpLoading(false);
+    }
+  };
+
   return (
     <>
       <div className="space-y-6">
@@ -141,6 +181,8 @@ export default function RecipeApp() {
               recipeIngredients={recipeIngredients}
               recipeGenre={recipeGenre}
               isGenerating={isGenerating}
+              isFollowUpLoading={isFollowUpLoading}
+              onSendFollowUp={sendFollowUp}
               onRate={async (rating) => {
                 setRecipeRating(rating);
                 try {

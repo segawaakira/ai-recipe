@@ -13,6 +13,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@ne
 import { RecipeService } from './recipe.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeRatingDto } from './dto/update-recipe-rating.dto';
+import { UpdateRecipeContentDto } from './dto/update-recipe-content.dto';
 import { PaginatedRecipeResponseDto } from './dto/paginated-recipe-response.dto';
 import { RecipeResponseDto, RatedRecipeResponseDto } from './dto/recipe-response.dto';
 import { CurrentUser } from '../auth/current-user.decorator';
@@ -86,6 +87,20 @@ export class RecipeController {
     @Body() dto: UpdateRecipeRatingDto,
   ) {
     return this.recipeService.updateRating(Number(id), dto.rating);
+  }
+
+  @Patch(':id/content')
+  @ApiOperation({ summary: 'Update recipe name and content' })
+  @ApiResponse({ status: 200, description: 'Recipe content updated', type: RecipeResponseDto })
+  async updateContent(
+    @Param('id') id: string,
+    @Body() dto: UpdateRecipeContentDto,
+  ) {
+    return this.recipeService.updateContent(
+      Number(id),
+      dto.name,
+      dto.content,
+    );
   }
 
   @Delete(':id')

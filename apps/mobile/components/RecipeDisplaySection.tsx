@@ -1,6 +1,7 @@
-import { View, Text } from "react-native";
+import { View, Text, ActivityIndicator } from "react-native";
 import Markdown from "react-native-markdown-display";
 import { Ionicons } from "@expo/vector-icons";
+import { RecipeFollowUp } from "./RecipeFollowUp";
 import { StarRating } from "./StarRating";
 import { YouTubeVideos } from "./YouTubeVideos";
 import { RecipeMeta } from "./RecipeMeta";
@@ -21,6 +22,8 @@ interface RecipeDisplaySectionProps {
   recipeIngredients: string[];
   recipeGenre: string;
   onRate: (rating: number) => Promise<void>;
+  isFollowUpLoading?: boolean;
+  onSendFollowUp?: (message: string) => void;
 }
 
 const markdownStyles = {
@@ -41,6 +44,8 @@ export function RecipeDisplaySection({
   recipeIngredients,
   recipeGenre,
   onRate,
+  isFollowUpLoading,
+  onSendFollowUp,
 }: RecipeDisplaySectionProps) {
   return (
     <View
@@ -77,7 +82,7 @@ export function RecipeDisplaySection({
         </>
       ) : null}
 
-      {recipe ? (
+      {recipe && !isFollowUpLoading ? (
         <View style={{ gap: 16, marginTop: 12 }}>
           <Markdown style={markdownStyles}>{recipe}</Markdown>
 
@@ -111,9 +116,23 @@ export function RecipeDisplaySection({
             </View>
           )}
 
+          {recipeName && onSendFollowUp && (
+            <RecipeFollowUp
+              isLoading={isFollowUpLoading ?? false}
+              onSend={onSendFollowUp}
+            />
+          )}
+
           {recipeName && (
             <YouTubeVideos videos={youtubeVideos} recipeName={recipeName} />
           )}
+        </View>
+      ) : isFollowUpLoading ? (
+        <View style={{ alignItems: "center", paddingVertical: 40 }}>
+          <ActivityIndicator size="large" color="#ea580c" />
+          <Text style={{ fontSize: 14, color: "#9ca3af", marginTop: 12 }}>
+            レシピをアレンジ中...
+          </Text>
         </View>
       ) : (
         <View style={{ alignItems: "center", paddingVertical: 40 }}>

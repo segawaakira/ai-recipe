@@ -177,6 +177,66 @@ ${JSON.stringify(existingIngredients)}
     return { results: parsed.results };
   }
 
+  async followUpRecipe(
+    recipeContent: string,
+    recipeName: string,
+    message: string,
+  ): Promise<{ recipe: string; recipeName: string }> {
+    const prompt = `あなたは料理アシスタントです。以下の元レシピをユーザーのリクエストに基づいてアレンジし、完全な新しいレシピとして出力してください。
+
+【元のレシピ名】${recipeName}
+【元のレシピ内容】
+${recipeContent}
+
+【ユーザーのリクエスト】
+${message}
+
+ルール:
+- リクエストに応じてレシピをアレンジしてください
+- 元のレシピの良さを活かしつつ、リクエストに沿った変更を加えてください
+- 日本語で回答してください
+
+必ず以下の形式で完全なレシピを出力してください：
+# アレンジ後の料理名
+## 材料
+## 手順
+## 所要時間
+## ポイント
+## 栄養素（目安・1人分）
+- カロリー: ○○kcal
+- たんぱく質: ○○g
+- 脂質: ○○g
+- 炭水化物: ○○g
+- 塩分: ○○g
+
+1行目は必ず「# 料理名」の形式にしてください。`;
+
+    const res = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-goog-api-key': this.apiKey,
+        },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+        }),
+      },
+    );
+
+    const data = await res.json();
+    const result =
+      data.candidates?.[0]?.content?.parts?.[0]?.text ||
+      'レシピを生成できませんでした';
+
+    const titleMatch = result.match(/^#\s+(.+)$/m);
+    const newRecipeName = titleMatch ? titleMatch[1].trim() : recipeName;
+    const newRecipeContent = result.replace(/^#\s+.+\n+/, '');
+
+    return { recipe: newRecipeContent, recipeName: newRecipeName };
+  }
+
   private buildPreferenceSection(
     ratedRecipes?: { name: string; rating: number }[],
   ): string {

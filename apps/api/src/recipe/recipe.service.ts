@@ -77,6 +77,13 @@ export class RecipeService {
     });
   }
 
+  async updateContent(id: number, name: string, content: string) {
+    return this.prisma.prisma.recipe.update({
+      where: { id },
+      data: { name, content },
+    });
+  }
+
   async getRatedRecipes(userId: number, limit: number = 10) {
     return this.prisma.prisma.recipe.findMany({
       where: {

@@ -128,6 +128,23 @@ export interface paths {
         patch: operations["RecipeController_updateRating"];
         trace?: never;
     };
+    "/recipes/{id}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update recipe name and content */
+        patch: operations["RecipeController_updateContent"];
+        trace?: never;
+    };
     "/youtube/search": {
         parameters: {
             query?: never;
@@ -190,6 +207,23 @@ export interface paths {
         put?: never;
         /** Validate ingredients using Gemini AI */
         post: operations["GeminiController_validateIngredients"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gemini/follow-up-recipe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Follow-up question about a generated recipe */
+        post: operations["GeminiController_followUpRecipe"];
         delete?: never;
         options?: never;
         head?: never;
@@ -477,6 +511,15 @@ export interface components {
              */
             rating: number;
         };
+        UpdateRecipeContentDto: {
+            /** @example 減塩トマトパスタ */
+            name: string;
+            /**
+             * @example ## 材料（2人分）
+             *     ...
+             */
+            content: string;
+        };
         YouTubeSearchResponseDto: {
             videos: components["schemas"]["YouTubeVideoDto"][];
         };
@@ -528,6 +571,26 @@ export interface components {
         };
         ValidateIngredientsResponseDto: {
             results: components["schemas"]["ValidateIngredientResultDto"][];
+        };
+        FollowUpRecipeDto: {
+            /**
+             * @example ## 材料（2人分）
+             *     ...
+             */
+            recipeContent: string;
+            /** @example トマトパスタ */
+            recipeName: string;
+            /** @example 減塩バージョンにしてください */
+            message: string;
+        };
+        FollowUpRecipeResponseDto: {
+            /**
+             * @example ## 材料（2人分）
+             *     ...
+             */
+            recipe: string;
+            /** @example 減塩トマトパスタ */
+            recipeName: string;
         };
         LoginDto: {
             /** @example user@example.com */
@@ -876,6 +939,32 @@ export interface operations {
             };
         };
     };
+    RecipeController_updateContent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRecipeContentDto"];
+            };
+        };
+        responses: {
+            /** @description Recipe content updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecipeResponseDto"];
+                };
+            };
+        };
+    };
     YouTubeController_search: {
         parameters: {
             query: {
@@ -966,6 +1055,30 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ValidateIngredientsResponseDto"];
+                };
+            };
+        };
+    };
+    GeminiController_followUpRecipe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FollowUpRecipeDto"];
+            };
+        };
+        responses: {
+            /** @description Follow-up reply generated */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FollowUpRecipeResponseDto"];
                 };
             };
         };
