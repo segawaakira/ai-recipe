@@ -39,7 +39,7 @@ ${
 - 足りない食材があっても「その他持っている食材」から相性の良いものを選んで補完してください
 - 持っていない食材は基本的に使わないでください（調味料は除く）
 ${genre ? `- 「${genre}」のジャンルに合った料理を提案してください` : ''}
-${ratedRecipes && ratedRecipes.length > 0 ? '- ユーザーの好みを考慮し、同じレシピは提案しないでください\n' : ''}
+${ratedRecipes && ratedRecipes.length > 0 ? '- ユーザーの好みを考慮してください\n- 過去に提案済みのレシピと同じものは避けてください\n' : ''}
 必ず以下の形式で出力してください：
 # 料理名
 ## 材料（${servings}人分）
@@ -249,10 +249,12 @@ ${message}
 
     let section = '\n【ユーザーの好み】\n';
     if (liked.length > 0) {
-      section += `好評: ${liked.map((r) => r.name).join('、')}\n`;
+      section += `好評だったレシピ: ${liked.map((r) => r.name).join('、')}\n`;
+      section += '- 好評のレシピに近い味付けや調理法を参考にしてください\n';
     }
     if (disliked.length > 0) {
-      section += `不評: ${disliked.map((r) => r.name).join('、')}\n`;
+      section += `不評だったレシピ: ${disliked.map((r) => r.name).join('、')}\n`;
+      section += '- 不評のレシピと似た味付けや調理法を避けてください\n';
     }
     return section;
   }
