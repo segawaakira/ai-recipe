@@ -11,7 +11,7 @@ AI Recipe アプリの Web フロントエンド。Next.js (App Router) で構�
 - **openapi-fetch** (型安全な API クライアント / `@repo/api-types`)
 - **React Hook Form + Zod** (フォームバリデーション)
 - **shadcn/ui + lucide-react** (UI コンポーネント / アイコン)
-- **Jest / Playwright** (テスト)
+- **Playwright** (E2E テスト)
 
 ## ディレクトリ構成
 
@@ -113,8 +113,7 @@ pnpm dev
 pnpm generate:api
 
 # テスト
-pnpm test          # Jest (ユニットテスト)
-pnpm e2e           # Playwright (E2E テスト)
+pnpm test:e2e      # Playwright (E2E テスト)
 ```
 
 ## 環境変数

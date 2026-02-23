@@ -3,11 +3,14 @@
 ## デモサイト
 
 - WEB
-https://ai-recipe-web.vercel.app/
 
-BASIC認証
-ID: user
-PW: uE8i|cB/
+    https://ai-recipe-web.vercel.app/
+
+    ```
+    BASIC認証
+    ID: user
+    PW: uE8i|cB/
+    ```
 
 - iOS
 
@@ -82,6 +85,7 @@ ai-recipe/
 ├── packages/
 │   ├── api-types/    # OpenAPI 生成型 (paths, operations)
 │   ├── api-schema/   # 共有バリデーションスキーマ (Zod)
+│   ├── database/     # Prisma Client ラッパー
 │   ├── ui/           # 共有 UI コンポーネント
 │   ├── typescript-config/
 │   └── eslint-config/
