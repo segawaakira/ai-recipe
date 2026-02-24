@@ -12,9 +12,11 @@ interface YouTubeVideo {
 interface YouTubeVideosProps {
   videos: YouTubeVideo[];
   recipeName: string;
+  ingredients?: string[];
+  genre?: string | null;
 }
 
-export function YouTubeVideos({ videos, recipeName }: YouTubeVideosProps) {
+export function YouTubeVideos({ videos, recipeName, ingredients, genre }: YouTubeVideosProps) {
   const openVideo = async (videoId: string) => {
     await WebBrowser.openBrowserAsync(`https://www.youtube.com/watch?v=${videoId}`);
   };

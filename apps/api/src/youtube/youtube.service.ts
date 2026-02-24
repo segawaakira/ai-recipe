@@ -32,6 +32,7 @@ export class YouTubeService {
       type: 'video',
       maxResults: '3',
       relevanceLanguage: 'ja',
+      // videoCategoryId: '26',
       key: apiKey,
     });
 
