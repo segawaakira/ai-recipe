@@ -13,16 +13,17 @@
     ```
 
 - Mobile
-以下のアドレスからInstallボタンをクリックし、それぞれのデバイスで、QRコードを読み込んで、アプリをインストールする。
+
+    以下のアドレスからInstallボタンをクリックし、それぞれのデバイスで、QRコードを読み込んで、アプリをインストールする。
     - iOS
 
-    https://expo.dev/accounts/segawaakira/projects/ai-recipe/builds/2984f922-fd7b-42f3-ad3e-6806ffc8ba53
+        https://expo.dev/accounts/segawaakira/projects/ai-recipe/builds/8c68c7c4-ccef-4bac-a017-b9cb8eb25171
 
-    ※iOSは、`設定 > プライバシーとセキュリティ > デベロッパモード`を`オン`にする必要あり
+        ※iOSは、`設定 > プライバシーとセキュリティ > デベロッパモード`を`オン`にする必要あり
 
     - Android
 
-    https://expo.dev/accounts/segawaakira/projects/ai-recipe/builds/916a5b4f-68a1-4490-98c5-a79029316f42
+        https://expo.dev/accounts/segawaakira/projects/ai-recipe/builds/0ff0622f-dab5-4fea-83fe-554c2abae27c
 
 ---
 
