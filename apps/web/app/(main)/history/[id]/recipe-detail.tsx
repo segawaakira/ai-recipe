@@ -80,7 +80,7 @@ export function RecipeDetail({ recipe: initialRecipe }: RecipeDetailProps) {
           </div>
 
           {recipe.youtubeVideos && recipe.youtubeVideos.length > 0 && (
-            <YouTubeVideos videos={recipe.youtubeVideos} recipeName={recipe.name} />
+            <YouTubeVideos videos={recipe.youtubeVideos} recipeName={recipe.name} ingredients={recipe.ingredients} genre={recipe.genre} />
           )}
 
           <div className="flex justify-end pt-3 border-t">

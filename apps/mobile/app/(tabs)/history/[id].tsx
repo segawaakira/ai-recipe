@@ -173,7 +173,7 @@ export default function RecipeDetailScreen() {
         {/* YouTube */}
         {recipe.youtubeVideos && recipe.youtubeVideos.length > 0 && (
           <View style={{ marginTop: 16 }}>
-            <YouTubeVideos videos={recipe.youtubeVideos} recipeName={recipe.name} />
+            <YouTubeVideos videos={recipe.youtubeVideos} recipeName={recipe.name} ingredients={recipe.ingredients} genre={recipe.genre} />
           </View>
         )}
 

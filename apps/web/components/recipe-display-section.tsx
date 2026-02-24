@@ -103,6 +103,8 @@ export function RecipeDisplaySection({
               <YouTubeVideos
                 videos={youtubeVideos}
                 recipeName={recipeName}
+                ingredients={recipeIngredients}
+                genre={recipeGenre}
               />
             )}
           </div>

@@ -12,7 +12,6 @@ AI Recipe アプリのモバイルクライアント。Expo (React Native) で�
 - **expo-image-picker** (カメラ / ギャラリー)
 - **react-native-markdown-display** (レシピ表示)
 - **@expo/vector-icons** (Ionicons)
-- **zod** (バリデーション)
 
 ## ディレクトリ構成
 

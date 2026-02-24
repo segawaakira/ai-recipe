@@ -124,7 +124,7 @@ export function RecipeDisplaySection({
           )}
 
           {recipeName && (
-            <YouTubeVideos videos={youtubeVideos} recipeName={recipeName} />
+            <YouTubeVideos videos={youtubeVideos} recipeName={recipeName} ingredients={recipeIngredients} genre={recipeGenre} />
           )}
         </View>
       ) : isFollowUpLoading ? (

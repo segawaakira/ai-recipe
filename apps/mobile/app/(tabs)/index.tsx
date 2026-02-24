@@ -76,8 +76,9 @@ export default function HomeScreen() {
 
           let savedVideos: YouTubeVideo[] = [];
           try {
+            const ytQuery = [params.genre, ...params.selectedIngredients].filter(Boolean).join(" ");
             const { data: ytData } = await authClient.GET("/youtube/search", {
-              params: { query: { q: data.recipeName } },
+              params: { query: { q: ytQuery } },
             });
             if (ytData?.videos) {
               savedVideos = ytData.videos;

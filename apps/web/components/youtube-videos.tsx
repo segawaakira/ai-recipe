@@ -13,9 +13,12 @@ interface YouTubeVideo {
 interface YouTubeVideosProps {
   videos: YouTubeVideo[];
   recipeName: string;
+  ingredients?: string[];
+  genre?: string | null;
 }
 
-export function YouTubeVideos({ videos, recipeName }: YouTubeVideosProps) {
+export function YouTubeVideos({ videos, recipeName, ingredients, genre }: YouTubeVideosProps) {
+  const searchQuery = [genre, ...(ingredients || [])].filter(Boolean).join(" ") || recipeName;
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
 
   return (
@@ -75,7 +78,7 @@ export function YouTubeVideos({ videos, recipeName }: YouTubeVideosProps) {
       )}
 
       <a
-        href={`https://www.youtube.com/results?search_query=${encodeURIComponent(recipeName + " 作り方")}`}
+        href={`https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery + " 作り方 レシピ")}`}
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center gap-2 w-full justify-center rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 transition-colors py-2 px-4 text-xs text-red-700"
