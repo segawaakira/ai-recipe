@@ -12,13 +12,19 @@
     PW: uE8i|cB/
     ```
 
-- iOS
+- Mobile
 
-TBD
+以下のアドレスからInstallボタンをクリックし、それぞれのデバイスで、QRコードを読み込んで、アプリをインストールする。
 
-- Android
+    - iOS
 
-TBD
+    https://expo.dev/accounts/segawaakira/projects/ai-recipe/builds/2984f922-fd7b-42f3-ad3e-6806ffc8ba53
+
+    ※iOSは、`設定 > プライバシーとセキュリティ > デベロッパモード`を`オン`にする必要あり
+
+    - Android
+
+    https://expo.dev/accounts/segawaakira/projects/ai-recipe/builds/916a5b4f-68a1-4490-98c5-a79029316f42
 
 ---
 
