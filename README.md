@@ -48,19 +48,22 @@
 
 - 所有食材から使いたい食材を選択し、AIレシピを作成クリックで、AIが提案するレシピが表示されます。評価をすると、次回以降のレシピに反映されます。
 
-<img width="860" height="5889" alt="1" src="https://github.com/user-attachments/assets/0162603c-5b94-4a7e-a051-73f195c6a7a2" />
+    <img width="430" height="auto" alt="1" src="https://github.com/user-attachments/assets/0162603c-5b94-4a7e-a051-73f195c6a7a2" />
+
 
 - 所有食材は、テキストだけでなく画像からも登録できます。
 
-<img width="860" height="1776" alt="2" src="https://github.com/user-attachments/assets/68274d31-d733-4571-9964-c3f124177af2" />
+    <img width="430" height="auto" alt="2" src="https://github.com/user-attachments/assets/4eab7bbc-298c-4991-b7c2-ce0b323b2cde" />
+
 
 - 提案されたレシピは履歴一覧で確認できます。
 
-<img width="860" height="2242" alt="3" src="https://github.com/user-attachments/assets/002630a3-55ba-4a4a-ae2b-4b9c7a114bcc" />
+    <img width="430" height="auto" alt="3" src="https://github.com/user-attachments/assets/002630a3-55ba-4a4a-ae2b-4b9c7a114bcc" />
+
 
 - 履歴詳細で、過去のAIレシピが確認できます。
 
-<img width="860" height="3864" alt="4" src="https://github.com/user-attachments/assets/6e016dda-b1ad-4290-a9b2-2e4d01e68c05" />
+    <img width="430" height="auto" alt="4" src="https://github.com/user-attachments/assets/6e016dda-b1ad-4290-a9b2-2e4d01e68c05" />
 
 
 ---
