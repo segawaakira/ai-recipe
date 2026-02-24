@@ -13,9 +13,7 @@
     ```
 
 - Mobile
-
 以下のアドレスからInstallボタンをクリックし、それぞれのデバイスで、QRコードを読み込んで、アプリをインストールする。
-
     - iOS
 
     https://expo.dev/accounts/segawaakira/projects/ai-recipe/builds/2984f922-fd7b-42f3-ad3e-6806ffc8ba53
