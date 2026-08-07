@@ -6,12 +6,6 @@
 
     https://ai-recipe-web.vercel.app/
 
-    ```
-    BASIC認証
-    ID: user
-    PW: uE8i|cB/
-    ```
-
 - Mobile
 
     以下のアドレスからInstallボタンをクリックし、それぞれのデバイスで、QRコードを読み込んで、アプリをインストールする。
