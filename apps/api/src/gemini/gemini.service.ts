@@ -2,8 +2,30 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class GeminiService {
+  private readonly modelUrl =
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent';
+
   private get apiKey(): string {
     return process.env.GEMINI_API_KEY || '';
+  }
+
+  private async callGemini(body: unknown): Promise<any> {
+    const res = await fetch(this.modelUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-goog-api-key': this.apiKey,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await res.json();
+    if (!res.ok || data.error) {
+      throw new Error(
+        data.error?.message || `Gemini API request failed (${res.status})`,
+      );
+    }
+    return data;
   }
 
   async generateRecipe(
@@ -55,21 +77,9 @@ ${ratedRecipes && ratedRecipes.length > 0 ? '- ユーザーの好みを考慮し
 
 1行目は必ず「# 料理名」の形式にしてください。`;
 
-    const res = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-goog-api-key': this.apiKey,
-        },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-        }),
-      },
-    );
-
-    const data = await res.json();
+    const data = await this.callGemini({
+      contents: [{ parts: [{ text: prompt }] }],
+    });
     const result =
       data.candidates?.[0]?.content?.parts?.[0]?.text ||
       'レシピを生成できませんでした';
@@ -93,28 +103,16 @@ ${ratedRecipes && ratedRecipes.length > 0 ? '- ユーザーの好みを考慮し
 必ずJSON配列のみを返してください。説明文は不要です。
 例: ["トマト", "玉ねぎ", "鶏もも肉"]`;
 
-    const res = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-goog-api-key': this.apiKey,
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { text: prompt },
-                { inline_data: { mime_type: mimeType, data: base64Data } },
-              ],
-            },
+    const data = await this.callGemini({
+      contents: [
+        {
+          parts: [
+            { text: prompt },
+            { inline_data: { mime_type: mimeType, data: base64Data } },
           ],
-        }),
-      },
-    );
-
-    const data = await res.json();
+        },
+      ],
+    });
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
 
     const jsonMatch = text.match(/\[[\s\S]*?\]/);
@@ -153,21 +151,9 @@ ${JSON.stringify(existingIngredients)}
 
 全ての追加食材について結果を返してください。similarToは既存食材リストの中から最も類似するものがある場合のみ設定し、なければnullにしてください。`;
 
-    const res = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-goog-api-key': this.apiKey,
-        },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-        }),
-      },
-    );
-
-    const data = await res.json();
+    const data = await this.callGemini({
+      contents: [{ parts: [{ text: prompt }] }],
+    });
     const text =
       data.candidates?.[0]?.content?.parts?.[0]?.text || '{"results":[]}';
 
@@ -211,21 +197,9 @@ ${message}
 
 1行目は必ず「# 料理名」の形式にしてください。`;
 
-    const res = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-goog-api-key': this.apiKey,
-        },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-        }),
-      },
-    );
-
-    const data = await res.json();
+    const data = await this.callGemini({
+      contents: [{ parts: [{ text: prompt }] }],
+    });
     const result =
       data.candidates?.[0]?.content?.parts?.[0]?.text ||
       'レシピを生成できませんでした';
